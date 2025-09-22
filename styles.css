@@ -1,0 +1,632 @@
+﻿/* -------------------------------------------------------
+   SOPY â€“ styles.css
+   Reset + Tokens + Layout + States para animaÃ§Ãµes GSAP
+   (HTML: a estrutura que te enviei)
+------------------------------------------------------- */
+
+/* ========== RESET BÃSICO ========== */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html, body {
+  height: 100%;
+  scroll-behavior: auto; /* Lenis cuida do smooth */
+}
+
+body {
+  margin: 0;
+  font-family: "Geist", Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  color: var(--text);
+  background: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  cursor: none; /* usamos o cursor customizado */
+}
+
+/* Bloqueia scroll durante o loading */
+body.is-loading {
+  overflow: hidden;
+  height: 100vh;
+}
+
+/* Links e botÃµes */
+a { color: inherit; text-decoration: none; }
+button { font: inherit; color: inherit; background: none; border: none; cursor: pointer; }
+img, video { display: block; max-width: 100%; }
+
+/* Acessibilidade */
+:focus-visible { outline: 2px solid var(--brand); outline-offset: 2px; }
+
+/* Sempre usar o cursor customizado (cÃ­rculo) tambÃ©m em elementos interativos */
+a, button, .btn, [role="button"], input[type="button"], input[type="submit"], input[type="reset"], .nav a, .product-actions button {
+  cursor: none !important;
+}
+
+/* ========== TOKENS DE TEMA ========== */
+:root {
+  /* Neutros */
+  --bg: #ffffff;
+  --surface: #f6f7fb;
+  --surface-2: #eef1f6;
+  --text: #0e0f12;
+  --muted: #6b7280;
+  --line: #e5e7eb;
+  --shadow: 0 10px 25px rgba(0,0,0,.12);
+
+  /* Aqua Blu (default) â€” palette: #083DA6, #076DF2, #0C87F2, #1DDDF2 */
+  --brand: #076DF2;       /* primary */
+  --brand-2: #0C87F2;     /* secondary */
+  --accent: #1DDDF2;      /* accent */
+  --brand-dark: #083DA6;  /* dark */
+  --gradient: radial-gradient(1200px 600px at 70% 30%, rgba(7,109,242,.18), transparent),
+              radial-gradient(800px 400px at 20% 80%, rgba(29,221,242,.18), transparent);
+  /* Water seam controls */
+  --mask-start: 52%;   /* onde comeÃ§a a desvanecer o vÃ­deo (45â€“60%) */
+  --seam-height: 22vh; /* altura da zona de mistura (15â€“30vh) */
+}
+
+body.theme-citrus {
+  /* Citrus Lush â€” palette: #5FD97E, #91D9A3, #167312, #D7D9D2 */
+  --brand: #5FD97E;       /* primary */
+  --brand-2: #91D9A3;     /* secondary */
+  --accent: #D7D9D2;      /* accent/neutral */
+  --brand-dark: #167312;  /* dark */
+  --gradient: radial-gradient(1200px 600px at 70% 30%, rgba(95,217,126,.18), transparent),
+              radial-gradient(800px 400px at 20% 80%, rgba(145,217,163,.18), transparent);
+}
+
+/* Tipos */
+.h1, h1, h2, h3 { font-family: "Anton", Inter, sans-serif; font-weight: 400; letter-spacing: 0; }
+h1 { font-size: clamp(2.25rem, 6vw, 4rem); line-height: 1.02; margin: 0 0 0.5rem; }
+h2 { font-size: clamp(1.75rem, 3.6vw, 2.5rem); line-height: 1.06; margin: 0 0 .5rem; }
+h3 { font-size: clamp(1.25rem, 2.4vw, 1.4rem); margin: 0; }
+p  { font-size: clamp(.95rem, 1.3vw, 1.05rem); line-height: 1.5; color: var(--text); margin: 0; }
+.muted { color: var(--muted); }
+
+/* ========== GRID & SEÃ‡Ã•ES ========== */
+.section { 
+  padding: clamp(56px, 8vw, 96px) clamp(16px, 5vw, 64px); 
+  position: relative; 
+  min-height: 100vh; /* volta para 100vh */
+  display: flex; 
+  flex-direction: column; 
+  justify-content: center; /* centraliza verticalmente o conteÃºdo */
+  z-index: 3; /* garante que seÃ§Ãµes apÃ³s o hero cubram o vÃ­deo sticky */
+}
+.section--full { 
+  height: 100vh; /* volta para 100vh */
+  position: relative; 
+  overflow: visible; /* nÃ£o clipe para permitir sticky e sobreposiÃ§Ã£o */
+  display: flex; 
+  align-items: center; 
+  justify-content: center; /* centraliza conteÃºdo */
+}
+.section-header { max-width: 900px; margin: 0 auto 2.25rem; text-align: center; }
+.section-header p { color: var(--muted); }
+
+.site-header {
+  position: fixed; inset: 0 0 auto 0; height: 72px;
+  display: grid; place-items: center; z-index: 50;
+  background: transparent; /* transparente, sem blur */
+  -webkit-backdrop-filter: none;
+  backdrop-filter: none;
+  border-bottom: none;
+}
+
+/* Esconde a nav enquanto o usuÃ¡rio estÃ¡ na seÃ§Ã£o hero */
+body.nav-hidden .site-header { opacity: 0; pointer-events: none; }
+body.nav-hidden .site-header * { visibility: hidden; }
+
+/* transiÃ§Ã£o suave para o header aparecer/sumir */
+.site-header { transition: opacity .25s ease, transform .25s ease; }
+
+.nav {
+  width: min(1400px, 94%);
+  padding: 0 24px; /* margem igual entre logo e CTA nas bordas */
+  display: grid; grid-template-columns: auto 1fr auto; gap: 24px; align-items: center;
+}
+.nav-links { justify-self: center; }
+.nav-logo img { height: 38px; width: auto; }
+.nav-links { display: flex; gap: 20px; justify-content: center; align-items: center; }
+.nav-links a { color: var(--text); font-weight: 500; font-size: .95rem; opacity: .85; transition: opacity .2s ease; }
+.nav-links a:hover { opacity: 1; }
+.nav-cta { display: flex; justify-content: end; }
+
+/* ========== BOTÃ•ES ========== */
+.btn {
+  --_bg: var(--brand);
+  --_fg: #fff;
+  --_bd: var(--brand);
+  position: relative;
+  display: inline-flex; align-items: center; justify-content: center;
+  gap: .5rem; padding: .85rem 1.2rem; border-radius: 999rem;
+  border: 1px solid var(--_bd); background: var(--_bg); color: var(--_fg);
+  font-weight: 600; letter-spacing: .01em; box-shadow: none; 
+  transition: transform .12s ease, background .2s ease, box-shadow .2s ease, color .2s ease, border-color .2s ease;
+  overflow: hidden;
+}
+
+.btn::before {
+  content: "";
+  position: absolute;
+  left: var(--xPos, 50%);
+  top: var(--yPos, 50%);
+  transform: translate(-50%, -50%);
+  width: 0;
+  height: 0;
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 50%;
+  transition: width 1.5s ease, height 1.5s ease;
+  z-index: 0;
+}
+
+.btn:hover::before {
+  width: 400px;
+  height: 400px;
+}
+
+.btn * {
+  position: relative;
+  z-index: 1;
+}
+
+.btn:hover { transform: translateY(-1px); box-shadow: 0 10px 18px rgba(0,0,0,.08); }
+.btn:active { transform: translateY(0); box-shadow: none; }
+
+.btn-ghost {
+  --_bg: rgba(255,255,255,.7);
+  --_fg: var(--brand);
+  --_bd: rgba(0,0,0,0);
+}
+.btn-outline {
+  --_bg: transparent;
+  --_fg: var(--brand);
+  --_bd: var(--brand);
+}
+
+/* ========== HERO (VÃDEO) ========== */
+.hero, #hero {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-top: clamp(48px, 8vh, 96px); /* sobe o conteÃºdo, respeitando a header fixa */
+  justify-content: flex-start;
+}
+/* Parallax: hero fica preso no topo enquanto a prÃ³xima seÃ§Ã£o cobre por cima */
+#hero {
+  position: sticky;
+  top: 0;
+  overflow: visible; /* necessÃ¡rio para sticky nÃ£o ser bloqueado pelo overflow da section */
+  z-index: 1; /* abaixo da prÃ³xima seÃ§Ã£o */
+}
+.hero-media {
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background: var(--gradient);
+}
+.hero-video {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  filter: saturate(105%) contrast(102%);
+  mix-blend-mode: normal;
+  -webkit-mask-image:
+    linear-gradient(to bottom,
+      #000 0%,
+      #000 var(--mask-start),
+      rgba(0,0,0,.98) calc(var(--mask-start) + 4%),
+      rgba(0,0,0,.90) calc(var(--mask-start) + 9%),
+      rgba(0,0,0,.75) calc(var(--mask-start) + 15%),
+      rgba(0,0,0,.55) calc(var(--mask-start) + 22%),
+      rgba(0,0,0,.35) calc(var(--mask-start) + 29%),
+      rgba(0,0,0,.18) calc(var(--mask-start) + 35%),
+      rgba(0,0,0,0) 100%
+    );
+          mask-image:
+    linear-gradient(to bottom,
+      #000 0%,
+      #000 var(--mask-start),
+      rgba(0,0,0,.98) calc(var(--mask-start) + 4%),
+      rgba(0,0,0,.90) calc(var(--mask-start) + 9%),
+      rgba(0,0,0,.75) calc(var(--mask-start) + 15%),
+      rgba(0,0,0,.55) calc(var(--mask-start) + 22%),
+      rgba(0,0,0,.35) calc(var(--mask-start) + 29%),
+      rgba(0,0,0,.18) calc(var(--mask-start) + 35%),
+      rgba(0,0,0,0) 100%
+    );
+}
+.hero-poster {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+  opacity: 1; transition: opacity .35s ease;
+}
+.hero-poster.is-hidden { opacity: 0; }
+.hero-content {
+  position: relative; z-index: 1; width: min(1100px, 92%);
+  margin: 0 auto; padding: 0 0 0;
+  display: grid; gap: clamp(12px, 1.8vw, 18px); justify-items: center; text-align: center;
+}
+.hero-content h1.reveal-lines {
+  color: var(--brand-dark); /* destaque sobre Ã¡reas claras do vÃ­deo */
+  text-shadow: 0 2px 12px rgba(0,0,0,.28);
+  font-size: 4.5rem; line-height: 1.05;
+}
+.hero-content p { max-width: 780px; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,.25); }
+.hero section, .hero { color: #fff; }
+.hero .btn-primary { background: #fff; color: var(--brand); border-color: #fff; }
+.hero-ctas { display: flex; gap: 12px; flex-wrap: wrap; }
+
+/* Espuma/seam sutil entre hero e seÃ§Ã£o seguinte */
+#hero::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: calc(-1 * var(--seam-height) * 0.5); height: var(--seam-height);
+  background: radial-gradient(140% 110% at 50% 0%, rgba(255,255,255,.9) 0 34%, rgba(255,255,255,0) 60%);
+  filter: blur(8px);
+  opacity: .25;
+  pointer-events: none;
+}
+
+/* ========== LOADER ========== */
+#loader {
+  position: fixed; inset: 0; z-index: 1000; background: transparent; /* fundo vem do ::before mascarado */
+  color: #fff; display: grid; place-items: center; pointer-events: none;
+}
+/* MÃ¡scara tipo "gota": cria um furo circular que revela o vÃ­deo ao fundo */
+#loader {
+  /* variÃ¡veis controladas via JS/GSAP */
+  --r: 0px;      /* raio da gota */
+  --cx: 50vw;    /* centro X */
+  --cy: 50vh;    /* centro Y */
+}
+
+#loader::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0; /* fica atrÃ¡s do conteÃºdo do loader */
+  background: var(--brand-dark);
+  /* Dentro do raio -> transparente (revela o vÃ­deo); fora -> sÃ³lido (escuro) */
+  -webkit-mask: radial-gradient(circle at var(--cx) var(--cy), transparent 0 var(--r), black calc(var(--r) + 1px) 100%);
+  mask: radial-gradient(circle at var(--cx) var(--cy), transparent 0 var(--r), black calc(var(--r) + 1px) 100%);
+  pointer-events: none;
+}
+.loader-overlay {
+  position: absolute; inset: 0; display: none; grid-template-columns: 1fr 1fr; z-index: 1;
+}
+.loader-block { background: rgba(255,255,255,.06); }
+.loader-center { position: relative; z-index: 2; display: grid; place-items: center; gap: 18px; }
+
+.loader-counter { 
+  font-family: "Outfit", Inter, sans-serif; font-weight: 700;
+  font-size: clamp(2.25rem, 10vw, 8rem); line-height: 1; letter-spacing: -0.02em;
+}
+
+/* Remove a linha vertical do loader */
+.loader-divider { display: none; }
+
+.loader-circle {
+  width: 240px; aspect-ratio: 1; border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.35);
+  box-shadow: inset 0 0 80px rgba(255,255,255,.06), 0 10px 30px rgba(0,0,0,.2);
+  transform: scale(0); /* nÃ£o usamos mais para o reveal, sÃ³ efeito visual se quiser */
+  display: none; /* oculto para evitar segundo cÃ­rculo visÃ­vel */
+}
+
+/* ========== CURSOR OPCIONAL ========== */
+.cursor {
+  position: fixed;
+  z-index: 9999;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.6);
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  opacity: 0;
+  mix-blend-mode: difference;
+}
+
+/* ========== 3D (CAPSULE PIN) ========== */
+.capsule3d { background: var(--surface); }
+#capsula-3d { height: 200vh; --capsule-ui-offset: 120px; display: flex; flex-direction: column; align-items: center; justify-content: flex-start; padding-top: 0; position: relative; z-index: 2; isolation: isolate; }
+#capsula-3d::before {
+  /* zona de mistura suave no topo e gradiente profundo */
+  content: "";
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(to bottom,
+      #a6d1df 0%,  /* azul claro da superfÃ­cie */
+      #6fb8c4 38%,
+      #2a7f95 80%,
+      #166277 100%);
+}
+#capsula-3d::after {
+  /* bolhinhas discretas na seÃ§Ã£o deep (sob o canvas) */
+  content: "";
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(circle at 30% 75%, rgba(255,255,255,.22) 0 1px, transparent 2px);
+  background-size: 240px 240px;
+  opacity: .18;
+  animation: bubbles 28s linear infinite;
+}
+#capsula-3d::before {
+  content: "";
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background:
+    linear-gradient(to bottom,
+      #a6d1df 0%,
+      #6fb8c4 38%,
+      #2a7f95 80%,
+      #166277 100%);
+}
+#capsula-3d::after {
+  content: "";
+  position: absolute; left: 0; right: 0; top: -2vh;
+  height: calc(var(--seam-height) + 8vh);
+  background: linear-gradient(to top,
+    rgba(166,209,223,.92) 0%,
+    rgba(166,209,223,.65) 35%,
+    rgba(166,209,223,.35) 65%,
+    rgba(166,209,223,0) 100%);
+  mix-blend-mode: soft-light;
+  filter: blur(10px);
+  pointer-events: none;
+}
+#three-container {
+  position: sticky; top: var(--capsule-ui-offset); width: 100%; height: calc(100vh - var(--capsule-ui-offset));
+  background: transparent;
+  display: flex; align-items: center; justify-content: center;
+  z-index: 1;
+}
+.capsule3d::before {
+  /* bolhinhas discretas na seÃ§Ã£o deep (sob o canvas) */
+  content: "";
+  position: absolute; inset: 0; z-index: 0; pointer-events: none;
+  background-image: radial-gradient(circle at 30% 75%, rgba(255,255,255,.22) 0 1px, transparent 2px);
+  background-size: 240px 240px;
+  opacity: .18;
+  animation: bubbles 28s linear infinite;
+}
+.capsule3d-ui {
+  position: sticky; top: 0;
+  width: min(1200px, 94%); margin: 0 auto; padding: 16px 0;
+  display: grid; grid-template-columns: 1fr; gap: 10px; align-items: center; justify-items: center;
+  text-align: center;
+  z-index: 2;
+  order: -1; /* garante que a UI venha antes do canvas na direÃ§Ã£o da coluna */
+}
+.capsule3d-copy p { color: var(--muted); max-width: 680px; margin: 0 auto; }
+
+.fragrance-toggle {
+  display: inline-flex; gap: 8px; background: #fff; padding: 6px; border-radius: 999rem;
+  border: 1px solid var(--line); box-shadow: var(--shadow);
+}
+.toggle-option {
+  padding: .65rem 1rem; border-radius: 999rem; font-weight: 600;
+  color: var(--brand); background: transparent; border: 1px solid transparent;
+  transition: background .2s ease, color .2s ease, border-color .2s ease;
+}
+.toggle-option:hover { background: var(--surface-2); }
+.toggle-option.is-active { background: var(--brand); color: #fff; border-color: var(--brand); }
+
+/* ========== BENEFÃCIOS ========== */
+.benefit-grid {
+  display: grid; grid-template-columns: repeat(6, minmax(0,1fr));
+  gap: clamp(12px, 2vw, 20px); align-items: stretch;
+}
+.benefit-item {
+  background: #fff; border: 1px solid var(--line); border-radius: 16px;
+  padding: clamp(14px, 2.2vw, 18px); display: grid; gap: 10px; text-align: center;
+  box-shadow: 0 4px 16px rgba(0,0,0,.04);
+}
+.benefit-item img { width: 40px; height: 40px; margin: 0 auto .25rem; filter: drop-shadow(0 4px 6px rgba(0,0,0,.06)); }
+.benefit-item h3 { font-size: .98rem; color: var(--text); }
+
+/* ========== COMO USAR ========== */
+.howto-steps {
+  width: min(1000px, 92%); margin: 0 auto; counter-reset: step;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(12px, 2vw, 20px);
+}
+.howto-steps li {
+  list-style: none; background: #fff; border: 1px solid var(--line);
+  border-radius: 16px; padding: clamp(16px, 2.4vw, 22px); display: grid; gap: 10px;
+  box-shadow: 0 4px 16px rgba(0,0,0,.04);
+}
+.step-number {
+  width: 40px; height: 40px; border-radius: 50%;
+  display: grid; place-items: center; font-weight: 700; color: #fff;
+  background: linear-gradient(135deg, var(--brand), var(--brand-2));
+}
+
+/* ========== VÃDEO SECUNDÃRIO ========== */
+.section--video .video-wrap {
+  width: min(1100px, 94%); margin: 0 auto; border-radius: 16px; overflow: clip;
+  border: 1px solid var(--line); box-shadow: var(--shadow); background: #000;
+}
+.section--video video { width: 100%; height: auto; }
+
+/* ========== FRAGRÃ‚NCIAS ========== */
+.fragrance-grid {
+  width: min(1200px, 94%); margin: 0 auto;
+  display: grid; grid-template-columns: repeat(2, 1fr); gap: clamp(16px, 3vw, 24px);
+}
+.fragrance-card {
+  background: #fff; border: 1px solid var(--line); border-radius: 18px;
+  padding: clamp(16px, 3vw, 24px); display: grid; justify-items: center; gap: 10px;
+  text-align: center; box-shadow: 0 6px 18px rgba(0,0,0,.06);
+}
+.fragrance-card img { width: min(380px, 88%); height: auto; }
+
+/* ========== SUSTENTABILIDADE ========== */
+.badges {
+  width: min(1100px, 94%); margin: 0 auto; display: grid;
+  grid-template-columns: repeat(4, 1fr); gap: clamp(12px, 2vw, 18px);
+}
+.badges li {
+  list-style: none; background: #fff; border: 1px solid var(--line); border-radius: 14px;
+  padding: 12px 14px; display: flex; align-items: center; gap: 10px; color: var(--text);
+}
+.badges img { width: 22px; height: 22px; }
+
+/* ========== TESTEMUNHOS ========== */
+.testimonial-grid {
+  width: min(1100px, 94%); margin: 0 auto;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: clamp(12px, 2vw, 18px);
+}
+.testimonial {
+  background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px;
+  color: var(--text); font-style: italic; box-shadow: 0 6px 18px rgba(0,0,0,.05);
+}
+.testimonial cite { display: block; margin-top: 8px; font-style: normal; color: var(--muted); }
+
+/* ========== FAQ ========== */
+.faq details {
+  width: min(900px, 92%); margin: 0 auto 10px; background: #fff; border: 1px solid var(--line);
+  border-radius: 12px; padding: 14px 16px;
+}
+.faq summary { cursor: pointer; font-weight: 600; }
+.faq p { margin-top: 6px; color: var(--muted); }
+
+/* ========== FOOTER ========== */
+.site-footer {
+  border-top: 1px solid var(--line); background: #fff;
+}
+.footer-inner {
+  width: min(1200px, 94%); margin: 0 auto; padding: 22px 0;
+  display: flex; align-items: center; justify-content: space-between; color: var(--muted);
+}
+.footer-links { display: flex; gap: 16px; }
+
+/* ========== STATES PARA REVEALS (GSAP SplitText) ========== */
+.reveal-lines { overflow: hidden; position: relative; }
+.reveal-lines .line { overflow: hidden; }
+.reveal-lines .word { overflow: hidden; display: inline-block; }
+.reveal-lines .word > div,
+.reveal-lines .word > span { display: inline-block; transform: translateY(110%); will-change: transform; }
+.reveal-lines .line > div,
+.reveal-lines .line > span { display: inline-block; transform: translateY(110%); will-change: transform; }
+
+/* Nav e botÃµes no hero (entrada suave) â€“ serÃ£o animados no JS */
+.hero .btn,
+.nav { will-change: transform, opacity; }
+
+/* ========== RESPONSIVO ========== */
+@media (max-width: 1280px) {
+  .benefit-grid { grid-template-columns: repeat(3, 1fr); }
+  .shop .product-grid { grid-template-columns: repeat(3, 1fr); }
+  .badges { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (max-width: 900px) {
+  .nav-links { display: none; }
+  .capsule3d-ui { grid-template-columns: 1fr; gap: 12px; }
+  .howto-steps { grid-template-columns: 1fr; }
+  .fragrance-grid { grid-template-columns: 1fr; }
+  .shop .product-grid { grid-template-columns: 1fr 1fr; }
+  .testimonial-grid { grid-template-columns: 1fr; }
+}
+
+@media (max-width: 600px) {
+  .footer-inner { flex-direction: column; gap: 8px; }
+  .hero-ctas { width: 100%; justify-content: center; }
+  .btn { width: 100%; }
+}
+
+/* ========== REDUÃ‡ÃƒO DE MOVIMENTO (acessibilidade) ========== */
+@media (prefers-reduced-motion: reduce) {
+  * { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; scroll-behavior: auto !important; }
+}
+
+/* ========== UTILITÃRIOS ========== */
+.hide { display: none !important; }
+.center { text-align: center; }
+.max-w { width: min(1100px, 94%); margin-inline: auto; }
+
+/* -------------------------------------------------------
+   Fim
+------------------------------------------------------- */
+
+/* ========== PROGRESSO DE SCROLL (barra + cÃ­rculo) ========== */
+.progress-bar-wrap {
+  position: fixed; inset: 0 0 auto 0; height: 3px; z-index: 60; pointer-events: none;
+  background: transparent;
+}
+.progress-bar {
+  height: 100%; width: 0%; background: var(--brand); transition: width .08s linear;
+}
+
+.scroll-to-top {
+  position: fixed; right: 18px; bottom: 18px; z-index: 60;
+  display: grid; place-items: center; width: 56px; height: 56px;
+  border-radius: 999rem; border: none; background: transparent;
+  box-shadow: none; cursor: default; pointer-events: none; /* nÃ£o intercepta scroll/click */
+}
+.scroll-to-top .arrow-up { position: absolute; font-size: 16px; color: var(--brand-dark); opacity: 0; transition: opacity .2s ease; }
+.progress-circle { transform: rotate(-90deg); }
+.progress-circle-bg { stroke: rgba(0,0,0,.08); }
+.progress-circle-bar { stroke: var(--brand); stroke-dasharray: 283; stroke-dashoffset: 283; transition: stroke-dashoffset .08s linear; }
+
+/* ========== SEÃ‡Ã•ES COM FUNDO TEMÃTICO (CORES FORTES) ========== */
+/* AQUA â€” blocos fortes e contrastantes */
+body.theme-aqua #beneficios {
+  background: #076DF2; /* brand */
+}
+
+body.theme-aqua #como-usar {
+  background: #083DA6; /* dark */
+}
+
+body.theme-aqua #fragrancias {
+  background: #0C87F2; /* secondary */
+}
+
+body.theme-aqua #loja {
+  background: #083DA6; /* dark */
+}
+
+body.theme-aqua #sustentabilidade {
+  background: #0C87F2; /* secondary */
+}
+
+body.theme-aqua #testemunhos {
+  background: #076DF2; /* brand */
+}
+
+body.theme-aqua #faq {
+  background: #083DA6; /* dark */
+}
+
+body.theme-aqua #capsula-3d {
+  background: #083DA6; /* dark */
+}
+
+/* CITRUS â€” verdes fortes com neutros escuros para variaÃ§Ã£o */
+body.theme-citrus #beneficios {
+  background: #5FD97E; /* brand */
+}
+
+body.theme-citrus #como-usar {
+  background: #167312; /* dark */
+}
+
+body.theme-citrus #fragrancias {
+  background: #91D9A3; /* secondary */
+}
+
+body.theme-citrus #loja {
+  background: #167312; /* dark */
+}
+
+body.theme-citrus #sustentabilidade {
+  background: #91D9A3; /* secondary */
+}
+
+body.theme-citrus #testemunhos {
+  background: #5FD97E; /* brand */
+}
+
+body.theme-citrus #faq {
+  background: #167312; /* dark */
+}
+
+body.theme-citrus #capsula-3d {
+  background: #167312; /* dark */
+}
+
