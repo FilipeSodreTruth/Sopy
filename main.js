@@ -3,29 +3,49 @@
 ========================= */
 function setupOsmoWordsAnimation() {
   if (typeof SplitText === "undefined") return;
-  const heroSection = document.getElementById("hero");
-  const all = gsap.utils.toArray('[data-split="words"]');
-  all.forEach(el => {
-    if (heroSection && heroSection.contains(el)) return; // ignora hero
-    // Split em words
-    const split = new SplitText(el, {
-      type: "words",
-      wordsClass: "word"
+
+  const runAnimation = () => {
+    const heroSection = document.getElementById("hero");
+    const targets = gsap.utils.toArray('[data-split="words"]');
+
+    targets.forEach((el) => {
+      if (heroSection && heroSection.contains(el)) return; // ignora hero
+      if (el.dataset.osmoSplit === "true") return; // previne animações duplicadas
+
+      el.dataset.osmoSplit = "true";
+
+      const split = new SplitText(el, {
+        type: "words",
+        wordsClass: "word",
+      });
+
+      gsap.set(split.words, { yPercent: 110 });
+
+      gsap.to(split.words, {
+        yPercent: 0,
+        duration: 0.6,
+        stagger: 0.06,
+        ease: "osmo-ease",
+        scrollTrigger: {
+          trigger: el,
+          start: "top 80%",
+          once: true,
+        },
+        onComplete: () => split.revert(),
+      });
     });
-    gsap.set(split.words, { yPercent: 110 });
-    gsap.to(split.words, {
-      yPercent: 0,
-      duration: 0.6,
-      stagger: 0.06,
-      ease: "osmo-ease",
-      scrollTrigger: {
-        trigger: el,
-        start: "top 80%",
-        once: true
-      },
-      onComplete: () => split.revert()
-    });
-  });
+
+    if (typeof ScrollTrigger !== "undefined") {
+      ScrollTrigger.refresh();
+    }
+  };
+
+  const fontsReady = document.fonts && document.fonts.ready;
+  if (fontsReady && typeof fontsReady.then === "function") {
+    fontsReady.then(runAnimation).catch(runAnimation);
+  } else {
+    runAnimation();
+  }
 }
 /* main.js â€” Sopy Landing + E-com
    Requer: gsap + ScrollTrigger + SplitText + CustomEase + lenis + three + GLTFLoader
@@ -227,6 +247,7 @@ function setupLineReveals(scope = document) {
 
   targets.forEach((el) => {
     const isHero = heroSection && heroSection.contains(el);
+    if (!isHero && el.getAttribute("data-split") === "words") return;
 
     const split = new SplitText(el, isHero ? {
       type: "lines",
