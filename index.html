@@ -90,8 +90,6 @@
 
         </div>
 
-        <!-- Cursor/ícone opcional para interação -->
-        <div class="cursor" aria-hidden="true"></div>
       </section>
 
       <!-- ===================== SEÇÃO 3D (PIN) ===================== -->
@@ -105,11 +103,19 @@
             <p class="reveal-lines" data-split="words">Flui, mistura e atua onde importa. Veja de perto a engenharia por trás da cápsula.</p>
           </div>
 
-          <div class="fragrance-toggle" role="tablist" aria-label="Escolha a fragrância">
-            <button class="toggle-option btn" role="tab" aria-selected="false" data-theme="aqua" data-color="#076DF2" data-accent="#1DDDF2">Aqua Blu</button>
-            <button class="toggle-option btn is-active" role="tab" aria-selected="true" data-theme="citrus" data-color="#5FD97E" data-accent="#91D9A3">Citrus Lush</button>
+          <!-- fragrance-toggle moved to the end of body to keep it globally visible -->
+        </div>
+
+        <!-- Bloco de produto que aparece/alinhará ao final da seção 3D -->
+        <div class="capsule-3d-cta" aria-hidden="true">
+          <div class="capsule-3d-cta-inner">
+            <h3 class="product-title">Aqua Blu — R$120</h3>
+            <p class="product-copy">Lava roupas em cápsulas ultra concentrado com enzimas 100% solúvel na água. Combate as manchas e o odor para roupas brancas e coloridas protegendo as fibras e as cores. Pode ser usado em todos os tipos de máquinas. Vegano e Cruelty free.</p>
+            <a class="btn product-cta" href="#loja">Comprar agora</a>
           </div>
         </div>
+        <!-- decorative bubbles container: created by JS -->
+        <div class="capsule-bubbles" aria-hidden="true"></div>
       </section>
 
       <!-- ===================== BENEFÍCIOS ===================== -->
@@ -257,5 +263,12 @@
     <script src="main.js" defer></script>
 
     <noscript>Ative o JavaScript para ver as animações e a cápsula 3D.</noscript>
+    <!-- Cursor global: colocado no final do body para garantir stacking acima de seções -->
+    <div class="cursor" aria-hidden="true"></div>
+    <!-- Fragrance toggle moved to global scope so it stays visible on all sections -->
+    <div class="fragrance-toggle" role="tablist" aria-label="Escolha a fragrância">
+      <button class="toggle-option btn" role="tab" aria-selected="false" data-theme="aqua" data-color="#076DF2" data-accent="#1DDDF2">Aqua Blu</button>
+      <button class="toggle-option btn is-active" role="tab" aria-selected="true" data-theme="citrus" data-color="#5FD97E" data-accent="#91D9A3">Citrus Lush</button>
+    </div>
   </body>
 </html>

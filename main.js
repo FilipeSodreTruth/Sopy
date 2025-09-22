@@ -1,8 +1,27 @@
 ﻿/* =========================
+  1) GSAP Setup + Lenis (limpo)
+========================= */
+const plugins = [];
+if (typeof ScrollTrigger !== "undefined") plugins.push(ScrollTrigger);
+if (typeof CustomEase   !== "undefined") plugins.push(CustomEase);
+if (typeof SplitText    !== "undefined") plugins.push(SplitText);
+
+if (plugins.length) gsap.registerPlugin(...plugins);
+
+// Crie as eases uma única vez
+if (typeof CustomEase !== "undefined") {
+  if (!CustomEase.get("hop"))       CustomEase.create("hop",       "0.9,0,0.1,1");
+  if (!CustomEase.get("osmo-ease")) CustomEase.create("osmo-ease", "0.625, 0.05, 0, 1");
+}
+
+/* =========================
    Osmo Words Animation (exceto hero)
 ========================= */
 function setupOsmoWordsAnimation() {
   if (typeof SplitText === "undefined") return;
+
+  // respeita usuários com redução de movimento
+  const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
   const runAnimation = () => {
     const heroSection = document.getElementById("hero");
@@ -10,14 +29,21 @@ function setupOsmoWordsAnimation() {
 
     targets.forEach((el) => {
       if (heroSection && heroSection.contains(el)) return; // ignora hero
-      if (el.dataset.osmoSplit === "true") return; // previne animações duplicadas
-
+      if (el.dataset.osmoSplit === "true") return;         // evita duplicar
       el.dataset.osmoSplit = "true";
 
       const split = new SplitText(el, {
         type: "words",
-        wordsClass: "word",
+        wordsClass: "osmo-word" // isola estilo da osmo
       });
+
+      if (prefersReduced) {
+        split.revert();
+        return;
+      }
+
+      // micro-performance
+      split.words.forEach(w => w.style.willChange = "transform");
 
       gsap.set(split.words, { yPercent: 110 });
 
@@ -29,9 +55,14 @@ function setupOsmoWordsAnimation() {
         scrollTrigger: {
           trigger: el,
           start: "top 80%",
-          once: true,
+          once: true
         },
-        onComplete: () => split.revert(),
+        onComplete: () => {
+          // limpa will-change e reverte
+          split.words.forEach(w => w.style.willChange = "");
+            split.revert();
+            el.dataset.revealed = 'true';
+        }
       });
     });
 
@@ -47,6 +78,7 @@ function setupOsmoWordsAnimation() {
     runAnimation();
   }
 }
+
 /* main.js â€” Sopy Landing + E-com
    Requer: gsap + ScrollTrigger + SplitText + CustomEase + lenis + three + GLTFLoader
 */
@@ -225,6 +257,26 @@ tlLoader
     if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh(true);
     // Animação Osmo para todos os data-split="words" (exceto hero)
     setupOsmoWordsAnimation();
+    // Mostrar CTA alinhado ao fim da seção 3D
+    try {
+      const cta = document.querySelector('.capsule-3d-cta');
+      const triggerEl = document.getElementById('capsula-3d');
+      if (cta && triggerEl && typeof ScrollTrigger !== 'undefined') {
+        // Show the CTA only near the end of the 3D section and keep it visible.
+        ScrollTrigger.create({
+          trigger: triggerEl,
+          // fire when the section's bottom reaches the viewport bottom (end)
+          start: 'bottom bottom',
+          once: true,
+          onEnter: () => {
+            cta.classList.add('is-visible');
+            cta.classList.add('at-end');
+            try { ScrollTrigger.refresh(); } catch (_) {}
+          },
+          markers: false,
+        });
+      }
+    } catch (e) { console.warn('CTA ScrollTrigger init failed', e); }
   })
   // entrada suave dos elementos do hero (sem filtro pesado no vÃ­deo)
   .from(".nav, .hero .btn", {
@@ -247,7 +299,10 @@ function setupLineReveals(scope = document) {
 
   targets.forEach((el) => {
     const isHero = heroSection && heroSection.contains(el);
+    // If this element is explicitly marked for word-level Osmo animation, skip line reveals
     if (!isHero && el.getAttribute("data-split") === "words") return;
+    // Avoid double-animating: if we've already revealed it, skip
+    if (el.dataset.revealed === 'true') return;
 
     const split = new SplitText(el, isHero ? {
       type: "lines",
@@ -267,7 +322,7 @@ function setupLineReveals(scope = document) {
         duration: 1.8,
         ease: "power4.out",
         stagger: 0.15,
-        onComplete: () => split.revert()
+        onComplete: () => { split.revert(); el.dataset.revealed = 'true'; }
       });
       return;
     }
@@ -284,7 +339,7 @@ function setupLineReveals(scope = document) {
         start: "top 80%",
         once: true
       },
-      onComplete: () => split.revert()
+      onComplete: () => { split.revert(); el.dataset.revealed = 'true'; }
     });
   });
 }
@@ -471,9 +526,10 @@ function enter3D() {
 // ========== 3D Scroll Down Effect ==========
 // Faz o objeto 3D descer conforme o scroll na seÃ§Ã£o 3D
 function animateWithScroll() {
-  if (!running) { rafId = null; return; }
+  if (!running || !capsuleGroup) { rafId = null; return; }
   // Pega o topo e altura da seÃ§Ã£o 3D
   const section = document.getElementById('capsula-3d');
+  if (!section) { rafId = null; return; }
   const sectionRect = section.getBoundingClientRect();
   const sectionTop = window.scrollY + sectionRect.top;
   const sectionHeight = section.offsetHeight;
@@ -509,6 +565,67 @@ function onResizeThree() {
   camera.aspect = w / h;
   camera.updateProjectionMatrix();
 }
+
+/* =========================
+   Decorative rising bubbles (capsule -> hero)
+   Creates subtle, looping floating bubbles that rise from the 3D section toward the hero.
+   Uses GSAP for timing so it plays well with Lenis.
+========================= */
+function initCapsuleBubbles() {
+  const container = document.querySelector('.capsule-bubbles');
+  const section = document.getElementById('capsula-3d');
+  if (!container || !section || typeof gsap === 'undefined') return;
+
+  // Clean existing
+  container.innerHTML = '';
+
+  const max = 14; // number of bubbles
+  const w = section.clientWidth;
+  const h = section.clientHeight;
+
+  for (let i = 0; i < max; i++) {
+    const el = document.createElement('div');
+    el.className = 'bubble';
+    // random size class
+    const r = Math.random();
+    if (r > 0.85) el.classList.add('large');
+    else if (r < 0.25) el.classList.add('small');
+
+    // random start x within left half of the section (near the 3D object)
+    const startX = Math.round(w * (0.18 + Math.random() * 0.24));
+    // start near middle-bottom of section
+    const startY = Math.round(h * (0.45 + Math.random() * 0.45));
+
+    el.style.left = startX + 'px';
+    el.style.top = startY + 'px';
+    container.appendChild(el);
+
+    // animate up past the top of the section and fade
+    const travel = startY + (h * 1.2);
+    const dur = 10 + Math.random() * 10;
+    const delay = Math.random() * 6;
+
+    gsap.fromTo(el, { y: 0, opacity: 0.85, scale: 0.9 }, {
+      y: -travel,
+      opacity: 0.05,
+      scale: 1.05,
+      ease: 'sine.out',
+      duration: dur,
+      delay: delay,
+      repeat: -1,
+      repeatDelay: 4 + Math.random() * 4,
+      repeatRefresh: true
+    });
+  }
+}
+
+// init once three container exists; refresh on resize
+document.addEventListener('DOMContentLoaded', () => {
+  initCapsuleBubbles();
+});
+window.addEventListener('resize', () => {
+  try { initCapsuleBubbles(); } catch (e) { }
+});
 
 // Lazy-init Three.js: sÃ³ quando a seÃ§Ã£o 3D entrar na viewport
 (function lazyInitThree() {
@@ -729,7 +846,6 @@ if (cursor) {
   let raf;
 
   const update = () => {
-    // Lerp para suavizar o movimento; ajuste o factor se quiser mais responsivo
     cx += (mx - cx) * 0.25;
     cy += (my - cy) * 0.25;
     cursor.style.left = cx + "px";
@@ -740,15 +856,21 @@ if (cursor) {
   const show = () => gsap.to(cursor, { autoAlpha: 1, duration: 0.15 });
   const hide = () => gsap.to(cursor, { autoAlpha: 0, duration: 0.15 });
 
-  document.addEventListener("mousemove", (e) => {
+  // Aparece em todo o documento, usando pointermove para melhor compatibilidade com touch/pen
+  document.addEventListener("pointermove", (e) => {
+    if (e.pointerType === 'touch') return; // não mostra cursor em touch
     mx = e.clientX;
     my = e.clientY;
     if (!raf) raf = requestAnimationFrame(update);
-  });
-  document.addEventListener("mouseenter", show);
-  document.addEventListener("mouseleave", () => { hide(); cancelAnimationFrame(raf); raf = null; });
+    show();
+  }, { passive: true });
 
-  // magnet nos botÃµes: leve escala
+  // Esconde quando a aba perde foco (melhor que mouseleave em alguns browsers)
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) { hide(); cancelAnimationFrame(raf); raf = null; }
+  });
+
+  // magnet nos botões: leve escala
   gsap.utils.toArray(".btn, a, button").forEach((el) => {
     el.addEventListener("mouseenter", () => gsap.to(cursor, { scale: 1.25, duration: 0.15 }));
     el.addEventListener("mouseleave", () => gsap.to(cursor, { scale: 1, duration: 0.15 }));
@@ -795,4 +917,59 @@ function start3DScrollAnimation() {
 // Chame start3DScrollAnimation() apÃ³s o modelo ser carregado ou fallback criado
 // Exemplo: apÃ³s swapModel ou createFallbackModel, chame start3DScrollAnimation();
 window.start3DScrollAnimation = start3DScrollAnimation; // para debug
+
+/* =========================
+   FAQ accordion JS helper
+   Ensures only one accordion has the open animation by toggling .is-open
+   and keeps the URL hash in sync so :target-based styles still work.
+========================= */
+(function faqAccordionManager() {
+  const wrapper = document.querySelector('.faq-accordion');
+  if (!wrapper) return;
+
+  const accordions = Array.from(wrapper.querySelectorAll('.accordion'));
+  if (!accordions.length) return;
+
+  function closeAll() {
+    accordions.forEach(a => a.classList.remove('is-open'));
+  }
+
+  accordions.forEach((acc) => {
+    // clickable title anchor inside each accordion
+    const titleLink = acc.querySelector('.title a');
+    if (!titleLink) return;
+
+    titleLink.addEventListener('click', (ev) => {
+      // prevent default navigation so we control hash update consistently
+      ev.preventDefault();
+      const isOpen = acc.classList.contains('is-open');
+
+      // close others and toggle this one
+      closeAll();
+      if (!isOpen) acc.classList.add('is-open');
+
+      // update hash if the accordion has an id (keeps :target consistent)
+      if (acc.id) {
+        try { history.replaceState(null, '', '#' + acc.id); } catch (_) { location.hash = acc.id; }
+      }
+    });
+  });
+
+  // Keep UI in sync with back/forward navigation (hashchange)
+  window.addEventListener('hashchange', () => {
+    const id = location.hash ? location.hash.slice(1) : '';
+    closeAll();
+    if (id) {
+      const found = wrapper.querySelector('#' + CSS.escape(id));
+      if (found) found.classList.add('is-open');
+    }
+  });
+
+  // initialize from existing hash
+  if (location.hash) {
+    const id = location.hash.slice(1);
+    const found = wrapper.querySelector('#' + CSS.escape(id));
+    if (found) found.classList.add('is-open');
+  }
+})();
 

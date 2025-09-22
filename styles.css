@@ -1,4 +1,143 @@
-﻿/* -------------------------------------------------------
+﻿/* === FAQ Accordion Animation (CodePen style, scoped) === */
+.faq-accordion {
+  --size-header: 2.25rem;
+  --size-accordion-title: 1.25rem;
+  --size-accordion-content: 1rem;
+  --animation-speed: 100;
+  --slide-ease: cubic-bezier(0.86, 0, 0.07, 1);
+  --slide-duration: calc(400ms * 100 / var(--animation-speed));
+  --slide-delay: calc(450ms * 100 / var(--animation-speed));
+  --circle-duration: calc(900ms * 100 / var(--animation-speed));
+  max-width: 56ch;
+  margin: 0 auto 2rem;
+  font-family: Nunito, Arial, Helvetica, sans-serif;
+  font-weight: 600;
+}
+.faq-accordion .accordion {
+  --circle-x: 1.8rem;
+  --circle-y: 0;
+  --circle-r: 200%;
+  --circle-bg: #fff;
+  color: #000;
+  background-color: var(--circle-bg);
+  margin-bottom: 1rem;
+  border-radius: min(8px, 0.5rem);
+  display: grid;
+  grid-template-rows: 0fr 0fr;
+  transition-timing-function: var(--slide-ease);
+  transition-duration: 200ms, 200ms, var(--slide-duration);
+  transition-property: opacity, box-shadow, grid-template-rows;
+  transition-delay: 0ms, 0ms, var(--slide-delay);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.1);
+  opacity: 0.9;
+  overflow: hidden;
+  position: relative;
+}
+.faq-accordion .accordion:not(:target):hover {
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.5);
+}
+.faq-accordion .accordion:not(:target):active {
+  opacity: 1;
+  box-shadow: 0 4px 7px 0 rgba(0, 0, 0, 0.3);
+}
+.faq-accordion .accordion:target {
+  --d: 90deg;
+  grid-template-rows: 0fr 1fr;
+  transition: grid-template-rows var(--slide-ease) var(--slide-duration) var(--slide-delay);
+}
+.faq-accordion .wrapper {
+  padding-block: 0 1.05rem;
+  padding-inline: 1.25rem;
+}
+.faq-accordion .content {
+  font-size: var(--size-accordion-content);
+  line-height: 140%;
+}
+.faq-accordion .content p {
+  margin-bottom: 1rem;
+}
+.faq-accordion .content a {
+  color: currentColor;
+  font-weight: 800;
+  text-decoration: underline;
+}
+.faq-accordion .title a {
+  padding: 1rem 1.25rem;
+  font-size: var(--size-accordion-title);
+  font-weight: 800;
+  color: currentColor;
+  text-decoration: none;
+  display: flex;
+  flex-direction: row;
+  place-items: center;
+}
+.faq-accordion .title a::before {
+  --chevron-icon: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 320 512'%3E%3C!--! Font Awesome Pro 6.4.0 by @fontawesome - https://fontawesome.com License - https://fontawesome.com/license (Commercial License) Copyright 2023 Fonticons, Inc. --%3E%3Cpath fill='white' d='M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z'/%3E%3C/svg%3E");
+  content: "";
+  left: 0;
+  top: 0;
+  width: 0.65rem;
+  aspect-ratio: 320 / 512;
+  display: inline-block;
+  margin-right: 0.75rem;
+  transform: rotate(var(--d, 0deg));
+  transition: transform var(--slide-ease) var(--slide-duration) var(--slide-delay);
+  mask-image: var(--chevron-icon);
+  mask-size: 100% 100%;
+  -webkit-mask-image: var(--chevron-icon);
+  -webkit-mask-size: 100% 100%;
+  background-color: currentColor;
+}
+.faq-accordion .accordion::before,
+.faq-accordion .accordion::after {
+  content: "";
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background-color: var(--circle-bg);
+  mix-blend-mode: difference;
+  transform-style: preserve-3d;
+  transition-timing-function: ease;
+  transition-property: opacity, clip-path, visibility;
+  pointer-events: none;
+  clip-path: circle(var(--r) at var(--circle-x) var(--circle-y));
+  border-radius: inherit;
+  z-index: 4;
+}
+.faq-accordion .accordion::before {
+  --r: 0%;
+  transition-delay: var(--circle-duration), var(--circle-duration), 0ms;
+  transition-duration: 0ms, var(--circle-duration), 0ms;
+  opacity: 0;
+}
+.faq-accordion .accordion:target::before {
+  --r: var(--circle-r);
+  transition-delay: 0ms, 0ms, 0ms;
+  transition-duration: 0ms, var(--circle-duration), 0ms;
+  opacity: 1;
+}
+.faq-accordion .accordion::after {
+  --r: var(--circle-r);
+  transition-delay: 0ms, 0ms, var(--circle-duration);
+  transition-duration: 0ms, var(--circle-duration), 0ms;
+  visibility: hidden;
+  opacity: 1;
+}
+.faq-accordion .accordion:target:after {
+  --r: 0%;
+  transition-delay: 0ms, 0ms, 0ms;
+  transition-duration: 0ms, 0ms, 0ms;
+  visibility: visible;
+  opacity: 0;
+}
+.faq-accordion .title a:focus-visible {
+  background-color: hsl(0, 100%, 90%);
+  outline: none;
+}
+.faq-accordion .accordion:target .title a:focus-visible {
+  background-color: hsl(183, 100%, 93%);
+}
+/* -------------------------------------------------------
    SOPY â€“ styles.css
    Reset + Tokens + Layout + States para animaÃ§Ãµes GSAP
    (HTML: a estrutura que te enviei)
@@ -10,7 +149,7 @@
 *::after { box-sizing: border-box; }
 
 html, body {
-  height: 100%;
+  min-height: 100%;
   scroll-behavior: auto; /* Lenis cuida do smooth */
 }
 
@@ -50,7 +189,7 @@ a, button, .btn, [role="button"], input[type="button"], input[type="submit"], in
   --surface: #f6f7fb;
   --surface-2: #eef1f6;
   --text: #0e0f12;
-  --muted: #6b7280;
+  --muted: #ffffff; /* agora branco para melhor contraste conforme pedido */
   --line: #e5e7eb;
   --shadow: 0 10px 25px rgba(0,0,0,.12);
 
@@ -77,12 +216,12 @@ body.theme-citrus {
 }
 
 /* Tipos */
-.h1, h1, h2, h3 { font-family: "Anton", Inter, sans-serif; font-weight: 400; letter-spacing: 0; }
+h1, h2, h3 { font-family: "Anton", Geist, sans-serif; font-weight: 400; letter-spacing: 0; }
 h1 { font-size: clamp(2.25rem, 6vw, 4rem); line-height: 1.02; margin: 0 0 0.5rem; }
 h2 { font-size: clamp(1.75rem, 3.6vw, 2.5rem); line-height: 1.06; margin: 0 0 .5rem; }
 h3 { font-size: clamp(1.25rem, 2.4vw, 1.4rem); margin: 0; }
-p  { font-size: clamp(.95rem, 1.3vw, 1.05rem); line-height: 1.5; color: var(--text); margin: 0; }
-.muted { color: var(--muted); }
+p  { font-size: clamp(1rem, 1.3vw, 1.06rem); line-height: 1.55; color: var(--text); margin: 0; }
+.muted { color: var(--muted); font-size: 1.03rem; line-height: 1.6; }
 
 /* ========== GRID & SEÃ‡Ã•ES ========== */
 .section { 
@@ -102,8 +241,34 @@ p  { font-size: clamp(.95rem, 1.3vw, 1.05rem); line-height: 1.5; color: var(--te
   align-items: center; 
   justify-content: center; /* centraliza conteÃºdo */
 }
+
+/* Desktop: make each section behave like the hero (parallax/pinned background effect).
+   This keeps mobile unchanged while producing the cover-style parallax on larger screens. */
+@media (min-width: 900px) {
+  .section {
+    height: 100vh; /* occupy viewport */
+    position: relative;
+    display: block;
+    overflow: visible;
+  }
+
+  /* pin each full section so the next one scrolls over it, creating the parallax feel */
+  .section--full, .section {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* Ensure the hero remains highest visually so video looks correct */
+  #hero { z-index: 2; }
+  /* other sections slightly lower so overlap order is predictable */
+  .section { z-index: 1; }
+}
 .section-header { max-width: 900px; margin: 0 auto 2.25rem; text-align: center; }
-.section-header p { color: var(--muted); }
+.section-header p { color: var(--muted); font-size: 1.05rem; line-height: 1.6; }
 
 .site-header {
   position: fixed; inset: 0 0 auto 0; height: 72px;
@@ -312,15 +477,18 @@ body.nav-hidden .site-header * { visibility: hidden; }
 /* ========== CURSOR OPCIONAL ========== */
 .cursor {
   position: fixed;
-  z-index: 9999;
+  z-index: 999999; /* garantido acima de tudo */
   width: 42px;
   height: 42px;
   border-radius: 50%;
-  border: 2px solid rgba(255,255,255,.6);
+  border: 2px solid rgba(255,255,255,.85);
+  background: rgba(255,255,255,0.06);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.32), inset 0 1px 0 rgba(255,255,255,0.12);
   pointer-events: none;
   transform: translate(-50%, -50%);
   opacity: 0;
-  mix-blend-mode: difference;
+  mix-blend-mode: normal; /* normal é mais previsível em vários fundos */
+  transition: opacity .12s linear, transform .08s linear;
 }
 
 /* ========== 3D (CAPSULE PIN) ========== */
@@ -385,18 +553,107 @@ body.nav-hidden .site-header * { visibility: hidden; }
   animation: bubbles 28s linear infinite;
 }
 .capsule3d-ui {
-  position: sticky; top: 0;
+  /* Make the UI static so titles and copy don't pin or move with scroll */
+  position: relative; /* normal document flow */
   width: min(1200px, 94%); margin: 0 auto; padding: 16px 0;
   display: grid; grid-template-columns: 1fr; gap: 10px; align-items: center; justify-items: center;
   text-align: center;
+  padding-top: 3.5rem;
   z-index: 2;
-  order: -1; /* garante que a UI venha antes do canvas na direÃ§Ã£o da coluna */
+  order: -1; /* keeps UI before the canvas in column direction */
 }
-.capsule3d-copy p { color: var(--muted); max-width: 680px; margin: 0 auto; }
+.capsule-3d-cta {
+  position: fixed;
+  /* deslocado para não sobrepor o toggle no canto; adiciona espaço extra para a toggle (≈120px) */
+    right: calc(38vw + 120px);
+  top: 50%;
+  transform: translateY(-50%) translateX(40px) scale(.98);
+  max-width: 520px;
+  z-index: 60;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity .45s cubic-bezier(.22,.9,.25,1), transform .45s cubic-bezier(.22,.9,.25,1);
+}
+.capsule-3d-cta-inner {
+  background: rgba(255,255,255,0.02); /* subtle surface */
+  padding: 36px; border-radius: 18px; border: 1px solid rgba(0,0,0,0.06);
+  backdrop-filter: blur(6px);
+  pointer-events: auto;
+}
+.capsule-3d-cta .product-title { font-size: 1.9rem; margin: 0 0 .6rem; font-weight: 800; }
+.capsule-3d-cta .product-copy { margin: 0 0 1.1rem; color: var(--muted); font-size: 1.06rem; line-height: 1.6; }
+.capsule-3d-cta .product-cta { display: inline-block; pointer-events: auto; }
+.capsule-3d-cta.is-visible { opacity: 1; transform: translateY(-50%) translateX(0) scale(1); }
+
+@media (max-width: 900px) {
+  .capsule-3d-cta { right: 8vw; max-width: 360px; transform: translateY(-50%) translateX(0); }
+  .capsule-3d-cta-inner { border-radius: 12px; padding: 20px; }
+}
+/* Quando visível, o CTA pode receber eventos do ponteiro */
+.capsule-3d-cta.is-visible { pointer-events: auto; }
+
+/* Limita o deslocamento direito para evitar overflow em telas muito pequenas */
+@media (max-width: 480px) {
+  .capsule-3d-cta { right: 12px; left: auto; max-width: calc(100% - 48px); }
+}
+
+/* Quando o 3D terminar a animação, a CTA vira um bloco "estático" no final da seção.
+   Usamos position: absolute relativo ao container para que ela aparente estar "colada"
+   ao produto, sem mais transform animations. */
+.capsule-3d-cta.at-end {
+  position: absolute; /* será posicionado relativo ao #capsula-3d */
+  /* aumenta deslocamento para ficar mais ao lado do objeto */
+  right: calc(-3vw + 120px);
+  top: auto;
+  /* sobe o bloco (menos bottom) para ficar mais alinhado verticalmente com o produto */
+  bottom: 20.5rem;
+  transform: none;
+  opacity: 1;
+  pointer-events: auto;
+  z-index: 4; /* abaixo do canvas mas acima do fundo */
+}
+
+@media (max-width: 900px) {
+  .capsule-3d-cta.at-end { right: 8vw; bottom: 4.5rem; max-width: 360px; }
+}
+.capsule3d-copy p { color: var(--muted); max-width: 680px; margin: 0 auto; font-size: 1.05rem; line-height: 1.6; }
+
+/* ==== Decorative bubbles inside the 3D section ====
+   Bubbles rise from the 3D area upward toward the hero. JS will inject
+   bubble elements into `.capsule-bubbles` and animate them with GSAP.
+*/
+.capsule-bubbles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: visible;
+  z-index: 3; /* under CTA (60) and header (50), above background */
+}
+.capsule-bubbles .bubble {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, rgba(255,255,255,0.85), rgba(255,255,255,0.15));
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12), inset 0 2px 8px rgba(255,255,255,0.12);
+  opacity: 0.9;
+  mix-blend-mode: screen;
+  transform: translate3d(0,0,0) scale(0.9);
+}
+.capsule-bubbles .bubble.small { width: 28px; height: 28px; opacity: 0.8; }
+.capsule-bubbles .bubble.large { width: 78px; height: 78px; opacity: 0.6; }
+
+@media (max-width: 900px) {
+  .capsule-bubbles .bubble { width: 34px; height: 34px; }
+}
 
 .fragrance-toggle {
   display: inline-flex; gap: 8px; background: #fff; padding: 6px; border-radius: 999rem;
   border: 1px solid var(--line); box-shadow: var(--shadow);
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 9999; /* sempre acima */
 }
 .toggle-option {
   padding: .65rem 1rem; border-radius: 999rem; font-weight: 600;
@@ -474,7 +731,7 @@ body.nav-hidden .site-header * { visibility: hidden; }
   background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 18px;
   color: var(--text); font-style: italic; box-shadow: 0 6px 18px rgba(0,0,0,.05);
 }
-.testimonial cite { display: block; margin-top: 8px; font-style: normal; color: var(--muted); }
+.testimonial cite { display: block; margin-top: 8px; font-style: normal; color: var(--muted); font-size: 1rem; }
 
 /* ========== FAQ ========== */
 .faq details {
@@ -482,7 +739,7 @@ body.nav-hidden .site-header * { visibility: hidden; }
   border-radius: 12px; padding: 14px 16px;
 }
 .faq summary { cursor: pointer; font-weight: 600; }
-.faq p { margin-top: 6px; color: var(--muted); }
+.faq p { margin-top: 6px; color: var(--muted); font-size: 1.02rem; line-height: 1.6; }
 
 /* ========== FOOTER ========== */
 .site-footer {
@@ -526,6 +783,7 @@ body.nav-hidden .site-header * { visibility: hidden; }
 @media (max-width: 600px) {
   .footer-inner { flex-direction: column; gap: 8px; }
   .hero-ctas { width: 100%; justify-content: center; }
+  .fragrance-toggle { right: 12px; bottom: 12px; padding: 6px; }
   .btn { width: 100%; }
 }
 
