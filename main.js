@@ -1,4 +1,21 @@
-﻿/* =========================
+﻿// Pin de 1 segundo ao final da seção 3D
+document.addEventListener('DOMContentLoaded', () => {
+  if (typeof ScrollTrigger !== 'undefined' && document.getElementById('capsula-3d')) {
+    ScrollTrigger.create({
+      trigger: '#capsula-3d',
+      start: 'bottom bottom',
+      end: '+=1', // 1px de pin, mas controlado pelo onEnter/onLeave
+      pin: true,
+      pinSpacing: true,
+      scrub: false,
+      onEnter: self => {
+        // trava por 1s ao chegar no final
+        setTimeout(() => self.disable(), 1000);
+      },
+    });
+  }
+});
+/* =========================
   1) GSAP Setup + Lenis (limpo)
 ========================= */
 const plugins = [];
@@ -14,70 +31,7 @@ if (typeof CustomEase !== "undefined") {
   if (!CustomEase.get("osmo-ease")) CustomEase.create("osmo-ease", "0.625, 0.05, 0, 1");
 }
 
-/* =========================
-   Osmo Words Animation (exceto hero)
-========================= */
-function setupOsmoWordsAnimation() {
-  if (typeof SplitText === "undefined") return;
-
-  // respeita usuários com redução de movimento
-  const prefersReduced = window.matchMedia && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-
-  const runAnimation = () => {
-    const heroSection = document.getElementById("hero");
-    const targets = gsap.utils.toArray('[data-split="words"]');
-
-    targets.forEach((el) => {
-      if (heroSection && heroSection.contains(el)) return; // ignora hero
-      if (el.dataset.osmoSplit === "true") return;         // evita duplicar
-      el.dataset.osmoSplit = "true";
-
-      const split = new SplitText(el, {
-        type: "words",
-        wordsClass: "osmo-word" // isola estilo da osmo
-      });
-
-      if (prefersReduced) {
-        split.revert();
-        return;
-      }
-
-      // micro-performance
-      split.words.forEach(w => w.style.willChange = "transform");
-
-      gsap.set(split.words, { yPercent: 110 });
-
-      gsap.to(split.words, {
-        yPercent: 0,
-        duration: 0.6,
-        stagger: 0.06,
-        ease: "osmo-ease",
-        scrollTrigger: {
-          trigger: el,
-          start: "top 80%",
-          once: true
-        },
-        onComplete: () => {
-          // limpa will-change e reverte
-          split.words.forEach(w => w.style.willChange = "");
-            split.revert();
-            el.dataset.revealed = 'true';
-        }
-      });
-    });
-
-    if (typeof ScrollTrigger !== "undefined") {
-      ScrollTrigger.refresh();
-    }
-  };
-
-  const fontsReady = document.fonts && document.fonts.ready;
-  if (fontsReady && typeof fontsReady.then === "function") {
-    fontsReady.then(runAnimation).catch(runAnimation);
-  } else {
-    runAnimation();
-  }
-}
+/* (removido) setupOsmoWordsAnimation em favor de initMaskedTextRevealGlobal */
 
 /* main.js â€” Sopy Landing + E-com
    Requer: gsap + ScrollTrigger + SplitText + CustomEase + lenis + three + GLTFLoader
@@ -249,14 +203,9 @@ tlLoader
   })
   // configura reveals sÃ³ apÃ³s o loader
   .add(() => {
-    // Marca todos os tÃ­tulos para revelar
-    try {
-      document.querySelectorAll('h1, h2, h3').forEach((el) => el.classList.add('reveal-lines'));
-    } catch { }
-    setupLineReveals();
-    if (typeof ScrollTrigger !== "undefined") ScrollTrigger.refresh(true);
-    // Animação Osmo para todos os data-split="words" (exceto hero)
-    setupOsmoWordsAnimation();
+    // Inicia apenas o Osmo Masked Reveal global (exceto hero)
+  // animações de texto removidas globalmente por solicitação
+  if (typeof ScrollTrigger !== "undefined") try { ScrollTrigger.refresh(true); } catch {}
     // Mostrar CTA alinhado ao fim da seção 3D
     try {
       const cta = document.querySelector('.capsule-3d-cta');
@@ -287,62 +236,6 @@ tlLoader
     stagger: 0.08,
   });
 
-/* =========================
-   3) Reveals por linha (SplitText)
-========================= */
-function setupLineReveals(scope = document) {
-  if (typeof SplitText === "undefined") return;
-
-  const heroSection = document.getElementById("hero");
-  const targets = gsap.utils.toArray(scope.querySelectorAll(".reveal-lines, h1, h2, h3"));
-  if (!targets.length) return;
-
-  targets.forEach((el) => {
-    const isHero = heroSection && heroSection.contains(el);
-    // If this element is explicitly marked for word-level Osmo animation, skip line reveals
-    if (!isHero && el.getAttribute("data-split") === "words") return;
-    // Avoid double-animating: if we've already revealed it, skip
-    if (el.dataset.revealed === 'true') return;
-
-    const split = new SplitText(el, isHero ? {
-      type: "lines",
-      linesClass: "line"
-    } : {
-      type: "lines, words",
-      mask: "lines",
-      linesClass: "line",
-      wordsClass: "word"
-    });
-
-    if (isHero) {
-      gsap.set(split.lines, { yPercent: 110 });
-
-      gsap.to(split.lines, {
-        yPercent: 0,
-        duration: 1.8,
-        ease: "power4.out",
-        stagger: 0.15,
-        onComplete: () => { split.revert(); el.dataset.revealed = 'true'; }
-      });
-      return;
-    }
-
-    gsap.set(split.words, { yPercent: 110 });
-
-    gsap.to(split.words, {
-      yPercent: 0,
-      duration: 0.6,
-      stagger: 0.06,
-      ease: "osmo-ease",
-      scrollTrigger: {
-        trigger: el,
-        start: "top 80%",
-        once: true
-      },
-      onComplete: () => { split.revert(); el.dataset.revealed = 'true'; }
-    });
-  });
-}
 
 /* =========================
    Scroll Progress (barra + cÃ­rculo) + Voltar ao topo
@@ -448,6 +341,9 @@ function initThree() {
   capsuleGroup = new THREE.Group();
   scene.add(capsuleGroup);
 
+  // Define orientação inicial deitada
+  capsuleGroup.rotation.set(Math.PI / 2, 0, 0); // deitado horizontal
+
   // Se apÃ³s um tempo razoÃ¡vel ainda nÃ£o hÃ¡ objeto, cria fallback e inicia animaÃ§Ã£o
   setTimeout(() => {
     if (capsuleGroup.children.length === 0) {
@@ -527,24 +423,34 @@ function enter3D() {
 // Faz o objeto 3D descer conforme o scroll na seÃ§Ã£o 3D
 function animateWithScroll() {
   if (!running || !capsuleGroup) { rafId = null; return; }
-  // Pega o topo e altura da seÃ§Ã£o 3D
+  // Pega uma área maior que inclui a div intermediária antes da seção 3D
   const section = document.getElementById('capsula-3d');
   if (!section) { rafId = null; return; }
   const sectionRect = section.getBoundingClientRect();
   const sectionTop = window.scrollY + sectionRect.top;
   const sectionHeight = section.offsetHeight;
   const winH = window.innerHeight;
-  // Progresso do scroll dentro da seÃ§Ã£o (0 = topo, 1 = final)
+  
+  // Expande a área de trigger para começar mais cedo (na div intermediária)
+  const expandedStart = sectionTop - winH; // Começa 1 viewport antes da seção 3D
+  const expandedHeight = sectionHeight + winH; // Área total expandida
+  
+  // Progresso baseado na área expandida
   const scrollY = window.scrollY || window.pageYOffset;
-  const progress = clamp((scrollY - sectionTop) / (sectionHeight - winH), 0, 1);
-  // PosiÃ§Ã£o Y inicial e final (ajuste conforme necessÃ¡rio)
-  const yStart = 0.0;
-  const yEnd = -10.5; // quanto mais negativo, mais desce
+  const progress = clamp((scrollY - expandedStart) / expandedHeight, 0, 1);
+  
+  // Posição Y inicial alta (para começar na div intermediária) e final normal
+  const yStart = 15.0; // Bem alto para começar na div intermediária
+  const yEnd = -10.5; // Mantém o mesmo ponto final
   capsuleGroup.position.y = yStart + (yEnd - yStart) * progress;
-  // MantÃ©m rotaÃ§Ã£o e tilt
-  capsuleGroup.rotation.y += THREE_CONFIG.baseRotSpeed;
-  capsuleGroup.rotation.x += (hover.y - capsuleGroup.rotation.x) * THREE_CONFIG.tiltLerp;
-  capsuleGroup.rotation.z += (hover.x - capsuleGroup.rotation.z) * THREE_CONFIG.tiltLerp;
+  
+  // Rotação controlada pelo scroll: começa deitado, termina em pé
+  const rotStart = { x: Math.PI / 2, y: 0, z: 0 }; // deitado horizontal
+  const rotEnd = { x: 0, y: 0, z: 0 }; // em pé vertical
+  
+  capsuleGroup.rotation.x = rotStart.x + (rotEnd.x - rotStart.x) * progress;
+  capsuleGroup.rotation.y = rotStart.y + (rotEnd.y - rotStart.y) * progress;
+  capsuleGroup.rotation.z = rotStart.z + (rotEnd.z - rotStart.z) * progress;
   renderer.render(scene, camera);
   rafId = requestAnimationFrame(animateWithScroll);
 }
@@ -567,56 +473,352 @@ function onResizeThree() {
 }
 
 /* =========================
-   Decorative rising bubbles (capsule -> hero)
-   Creates subtle, looping floating bubbles that rise from the 3D section toward the hero.
-   Uses GSAP for timing so it plays well with Lenis.
+   3D Interactive Bubbles with Explosion Effects
+   Creates realistic floating bubbles with click interactions and particle explosions.
+   Uses Three.js with HDRI lighting for photorealistic materials.
 ========================= */
 function initCapsuleBubbles() {
   const container = document.querySelector('.capsule-bubbles');
-  const section = document.getElementById('capsula-3d');
-  if (!container || !section || typeof gsap === 'undefined') return;
+  if (!container || typeof THREE === 'undefined') return;
 
-  // Clean existing
-  container.innerHTML = '';
+  // Evita inicialização múltipla
+  if (container.__bubblesInitialized) return;
+  container.__bubblesInitialized = true;
 
-  const max = 14; // number of bubbles
-  const w = section.clientWidth;
-  const h = section.clientHeight;
+  // --- CONFIGURAÇÃO BÁSICA ---
+  const scene = new THREE.Scene();
+  // mantém o fundo transparente para integrar com a seção
+  scene.background = null;
+  const rect = container.getBoundingClientRect();
+  const camera = new THREE.PerspectiveCamera(75, rect.width / Math.max(1, rect.height), 0.1, 1000);
+  camera.position.z = 30;
 
-  for (let i = 0; i < max; i++) {
-    const el = document.createElement('div');
-    el.className = 'bubble';
-    // random size class
-    const r = Math.random();
-    if (r > 0.85) el.classList.add('large');
-    else if (r < 0.25) el.classList.add('small');
+  const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+  renderer.setSize(rect.width, Math.max(1, rect.height));
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.8; // Aumenta um pouco mais a exposição
+  // insere o canvas dentro do container para respeitar stacking e clipping
+  container.appendChild(renderer.domElement);
+  // garante preenchimento do container
+  Object.assign(renderer.domElement.style, { position: 'absolute', inset: '0', width: '100%', height: '100%' });
 
-    // random start x within left half of the section (near the 3D object)
-    const startX = Math.round(w * (0.18 + Math.random() * 0.24));
-    // start near middle-bottom of section
-    const startY = Math.round(h * (0.45 + Math.random() * 0.45));
+  // --- ILUMINAÇÃO E AMBIENTE (HDRI) ---
+  let envMap;
+  const rgbeLoader = THREE.RGBELoader ? new THREE.RGBELoader() : null;
+  let hdrLoaded = false;
+  if (rgbeLoader) {
+    rgbeLoader
+      .setPath('https://threejs.org/examples/textures/equirectangular/')
+      .load(
+        'venice_sunset_1k.hdr',
+        function (texture) {
+          texture.mapping = THREE.EquirectangularReflectionMapping;
+          envMap = texture;
+          scene.environment = envMap;
+          // Mantém background transparente (sem definir scene.background)
+          hdrLoaded = true;
+          createInitialBubbles();
+        },
+        undefined,
+        function () {
+          // Falha ao carregar HDRI: segue sem envMap
+          console.warn('[Bubbles] Falha ao carregar HDRI. Prosseguindo sem environment map.');
+          createInitialBubbles();
+        }
+      );
+    // Fallback de tempo: se HDRI demorar, inicia mesmo assim
+    setTimeout(() => { if (!hdrLoaded) createInitialBubbles(); }, 2000);
+  } else {
+    // Sem RGBELoader disponível: segue sem HDRI
+    createInitialBubbles();
+  }
 
-    el.style.left = startX + 'px';
-    el.style.top = startY + 'px';
-    container.appendChild(el);
-
-    // animate up past the top of the section and fade
-    const travel = startY + (h * 1.2);
-    const dur = 10 + Math.random() * 10;
-    const delay = Math.random() * 6;
-
-    gsap.fromTo(el, { y: 0, opacity: 0.85, scale: 0.9 }, {
-      y: -travel,
-      opacity: 0.05,
-      scale: 1.05,
-      ease: 'sine.out',
-      duration: dur,
-      delay: delay,
-      repeat: -1,
-      repeatDelay: 4 + Math.random() * 4,
-      repeatRefresh: true
+  // Se o container ainda não tiver tamanho estável, tenta ajustar em seguida
+  if (rect.width < 10 || rect.height < 10) {
+    requestAnimationFrame(() => {
+      const r2 = container.getBoundingClientRect();
+      camera.aspect = r2.width / Math.max(1, r2.height);
+      camera.updateProjectionMatrix();
+      renderer.setSize(r2.width, Math.max(1, r2.height));
     });
   }
+
+  const ambientLight = new THREE.AmbientLight(0xffffff, 0.8);
+  scene.add(ambientLight);
+
+  const directionalLight = new THREE.DirectionalLight(0xffffff, 1.5);
+  directionalLight.position.set(5, 10, 7.5);
+  scene.add(directionalLight);
+
+  // --- OBJETOS (AS BOLHAS) ---
+  const bubbles = [];
+  const bubbleCount = 20; // Mais bolhas para preencher mais o espaço
+  const bubbleGeometry = new THREE.SphereGeometry(1, 64, 64);
+
+  const bubbleMaterial = new THREE.MeshPhysicalMaterial({
+    color: 0xFFFFFF,
+    metalness: 0.0,
+    roughness: 0.06,
+    transmission: 0.55,
+    transparent: true,
+    opacity: 0.92,
+    ior: 1.33,
+    envMapIntensity: 2.2,
+    thickness: 0.6,
+    clearcoat: 1.0,
+    clearcoatRoughness: 0.06
+  });
+
+  function createBubble() {
+    const material = bubbleMaterial.clone();
+    if (envMap) {
+      material.envMap = envMap;
+      material.transmission = 1.0;
+      material.opacity = 0.85;
+    } else {
+      // fallback sem envMap: menos transmissão e mais opacidade
+      material.transmission = 0.0;
+      material.opacity = 0.35;
+      material.roughness = 0.15;
+      material.metalness = 0.0;
+      material.clearcoat = 0.6;
+      material.clearcoatRoughness = 0.2;
+    }
+
+    const bubble = new THREE.Mesh(bubbleGeometry, material);
+
+  bubble.position.x = THREE.MathUtils.randFloatSpread(40); // ~[-20,20]
+  bubble.position.y = THREE.MathUtils.randFloat(-25, -15); // começa visível na parte inferior
+  bubble.position.z = THREE.MathUtils.randFloatSpread(10); // ~[-5,5]
+
+    const scale = THREE.MathUtils.randFloat(0.4, 2.0); // Ainda mais variação no tamanho
+    bubble.scale.set(scale, scale, scale);
+
+    bubble.userData = {
+      speed: THREE.MathUtils.randFloat(0.05, 0.15),
+      // Movimento lateral mais natural
+      amplitudeX: THREE.MathUtils.randFloat(1, 4), // Amplitude da oscilação (1 a 4 unidades)
+      frequencyX: THREE.MathUtils.randFloat(0.5, 1.5), // Frequência da oscilação (mais lento/rápido)
+      oscillationOffset: Math.random() * Math.PI * 2,
+      originalX: bubble.position.x // Guarda a posição X inicial
+    };
+    
+    scene.add(bubble);
+    bubbles.push(bubble);
+  }
+
+  function createInitialBubbles() {
+    for (let i = 0; i < bubbleCount; i++) {
+      createBubble();
+    }
+    animate();
+  }
+
+  // --- INTERAÇÃO (CLIQUE E EXPLOSÃO) ---
+
+  const raycaster = new THREE.Raycaster();
+  const mouse = new THREE.Vector2();
+  let particleSystems = []; // Renomeado para evitar conflito e ser mais descritivo
+
+  const particleTexture = new THREE.CanvasTexture(generateParticleTexture());
+
+  function generateParticleTexture() {
+    const canvas = document.createElement('canvas');
+    canvas.width = 128; // Maior resolução para partículas
+    canvas.height = 128;
+    const context = canvas.getContext('2d');
+    const gradient = context.createRadialGradient(
+      canvas.width / 2, canvas.height / 2, 0,
+      canvas.width / 2, canvas.height / 2, canvas.width / 2
+    );
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.2, 'rgba(255,255,255,0.7)');
+    gradient.addColorStop(0.5, 'rgba(255,255,255,0.3)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    context.fillStyle = gradient;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    return canvas;
+  }
+
+  function onMouseClick(event) {
+    const rect = container.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    mouse.x = (x / rect.width) * 2 - 1;
+    mouse.y = -(y / rect.height) * 2 + 1;
+
+    raycaster.setFromCamera(mouse, camera);
+
+    const intersects = raycaster.intersectObjects(bubbles);
+
+    if (intersects.length > 0) {
+      const clickedBubble = intersects[0].object;
+      
+      createExplosion(clickedBubble.position, clickedBubble.scale.x);
+      
+      scene.remove(clickedBubble);
+      bubbles.splice(bubbles.indexOf(clickedBubble), 1);
+      
+      setTimeout(createBubble, 500); 
+    }
+  }
+
+  container.addEventListener('click', onMouseClick);
+
+  function createExplosion(position, bubbleScale) {
+    const particleCount = 30; // Mais partículas para uma explosão mais densa
+    
+    const particleMaterial = new THREE.PointsMaterial({
+      size: 0.3 * bubbleScale, // Tamanho base da partícula
+      map: particleTexture,
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      vertexColors: true // Habilita cores por vértice para controlar a cor individualmente
+    });
+
+    const particleGeometry = new THREE.BufferGeometry();
+    const positions = [];
+    const velocities = [];
+    const lives = []; // Vida atual
+    const maxLives = []; // Vida máxima (para variar a duração)
+    const colors = []; // Cores das partículas
+    const sizes = []; // Tamanhos individuais das partículas
+
+    const baseColor = new THREE.Color(0xADD8E6); // Cor base da bolha
+    const white = new THREE.Color(0xFFFFFF);
+
+    for (let i = 0; i < particleCount; i++) {
+      positions.push(position.x, position.y, position.z);
+      
+      const speed = THREE.MathUtils.randFloat(0.3, 0.8) * bubbleScale; // Velocidade inicial mais alta
+      velocities.push(
+        (Math.random() - 0.5) * speed,
+        (Math.random() - 0.5) * speed,
+        (Math.random() - 0.5) * speed
+      );
+
+      const life = THREE.MathUtils.randFloat(0.8, 1.5); // Vida útil mais variada
+      lives.push(life);
+      maxLives.push(life);
+
+      // Cor: Começa branco e transiciona para a cor da bolha ou levemente azul
+      const particleColor = baseColor.clone().lerp(white, THREE.MathUtils.randFloat(0.2, 0.8));
+      colors.push(particleColor.r, particleColor.g, particleColor.b);
+
+      sizes.push(THREE.MathUtils.randFloat(0.5, 1.5) * particleMaterial.size); // Tamanho individual
+    }
+
+    particleGeometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    particleGeometry.setAttribute('velocity', new THREE.Float32BufferAttribute(velocities, 3));
+    particleGeometry.setAttribute('life', new THREE.Float32BufferAttribute(lives, 1));
+    particleGeometry.setAttribute('maxLife', new THREE.Float32BufferAttribute(maxLives, 1));
+    particleGeometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    particleGeometry.setAttribute('size', new THREE.Float32BufferAttribute(sizes, 1)); // Adiciona atributo de tamanho
+
+    const particleSystem = new THREE.Points(particleGeometry, particleMaterial);
+    scene.add(particleSystem);
+    particleSystems.push(particleSystem);
+  }
+
+  // --- ANIMAÇÃO ---
+
+  const clock = new THREE.Clock();
+  const gravity = new THREE.Vector3(0, -0.05, 0); // Leve gravidade para as partículas (simulando bolhas subindo mais devagar)
+
+  function animate() {
+    requestAnimationFrame(animate);
+
+    const delta = clock.getDelta(); // Tempo desde o último quadro
+
+    // Animação das bolhas
+    bubbles.forEach(bubble => {
+      // Sobe a bolha
+      bubble.position.y += bubble.userData.speed * delta * 60;
+
+      // Oscilação lateral mais controlada e natural
+      const time = performance.now() * 0.001; // Tempo em segundos
+      bubble.position.x = bubble.userData.originalX + Math.sin(time * bubble.userData.frequencyX + bubble.userData.oscillationOffset) * bubble.userData.amplitudeX;
+
+
+      if (bubble.position.y > 25) {
+        bubble.position.y = -25;
+        bubble.position.x = THREE.MathUtils.randFloatSpread(40);
+        bubble.userData.originalX = bubble.position.x;
+        bubble.userData.oscillationOffset = Math.random() * Math.PI * 2;
+      }
+    });
+
+    // Animação das partículas de explosão
+    particleSystems.forEach((system, systemIndex) => {
+      const positions = system.geometry.attributes.position.array;
+      const velocities = system.geometry.attributes.velocity.array;
+      const lives = system.geometry.attributes.life.array;
+      const maxLives = system.geometry.attributes.maxLife.array;
+      const colors = system.geometry.attributes.color.array;
+      const sizes = system.geometry.attributes.size.array; // Pega o atributo de tamanho individual
+
+      let allParticlesDead = true;
+
+      for (let i = 0; i < positions.length; i += 3) {
+        const particleIndex = i / 3;
+
+        lives[particleIndex] -= delta; // Diminui a vida com base no tempo real
+
+        if (lives[particleIndex] > 0) {
+          allParticlesDead = false;
+
+          // Atualiza velocidade com gravidade (ou flutuabilidade oposta)
+          // Para bolhas, a "gravidade" real seria para cima. Vamos simular uma leve desaceleração.
+          // velocities[i+1] += gravity.y * delta; // Se quiser que as partículas "caiam"
+
+          // Move a partícula
+          positions[i] += velocities[i] * delta * 60;
+          positions[i + 1] += velocities[i + 1] * delta * 60;
+          positions[i + 2] += velocities[i + 2] * delta * 60;
+
+          // Fade out (opacidade e cor)
+          const lifeRatio = lives[particleIndex] / maxLives[particleIndex];
+          system.material.opacity = Math.max(0, lifeRatio); // Opacidade baseada na vida
+
+          // A cor também faz fade-out (escurecendo ou ficando transparente)
+          const initialColor = new THREE.Color(colors[i], colors[i+1], colors[i+2]);
+          const finalColor = new THREE.Color(0x000000); // Para onde a cor irá (preto ou transparente)
+          initialColor.lerp(finalColor, 1 - lifeRatio);
+          system.geometry.attributes.color.setXYZ(particleIndex, initialColor.r, initialColor.g, initialColor.b);
+
+          // Ajusta o tamanho da partícula (encolhe)
+          // system.material.size = sizes[particleIndex] * Math.pow(lifeRatio, 0.5); // Encolhe gradualmente
+          // Nota: Para Three.Points, `material.size` afeta todas as partículas. Para tamanhos individuais, precisa de um shader personalizado.
+          // Por enquanto, vamos deixar `material.size` fixo para o sistema e controlar a opacidade.
+          // Se quisermos tamanhos individuais em PointsMaterial, precisamos de um shader customizado (mais complexo).
+        } else {
+          positions[i] = positions[i + 1] = positions[i + 2] = 10000; // Move para fora da vista
+        }
+      }
+
+      system.geometry.attributes.position.needsUpdate = true;
+      system.geometry.attributes.life.needsUpdate = true;
+      system.geometry.attributes.color.needsUpdate = true; // Atualiza as cores
+
+      if (allParticlesDead) {
+        scene.remove(system);
+        particleSystems.splice(systemIndex, 1);
+      }
+    });
+
+    renderer.render(scene, camera);
+  }
+
+  // --- RESPONSIVIDADE ---
+  function onWindowResize() {
+    const r = container.getBoundingClientRect();
+    camera.aspect = r.width / Math.max(1, r.height);
+    camera.updateProjectionMatrix();
+    renderer.setSize(r.width, Math.max(1, r.height));
+  }
+  window.addEventListener('resize', onWindowResize);
 }
 
 // init once three container exists; refresh on resize
@@ -671,6 +873,10 @@ function createFallbackModel(theme = "aqua") {
   const mesh = new THREE.Mesh(geo, mat);
   mesh.userData.isFallback = true;
   capsuleGroup.add(mesh);
+  
+  // SEMPRE força a rotação inicial deitada no fallback também
+  capsuleGroup.rotation.set(Math.PI / 2, 0, 0);
+  capsuleGroup.position.y = 15.0;
 }
 
 // Troca o modelo conforme o tema
@@ -750,6 +956,10 @@ function normalizeAndAddModel(model) {
 
   capsuleGroup.add(model);
   bindGelMaterials(model);
+  
+  // SEMPRE força a rotação inicial deitada após adicionar qualquer modelo
+  capsuleGroup.rotation.set(Math.PI / 2, 0, 0);
+  capsuleGroup.position.y = 100.0; // Posição inicial alta
 }
 
 function bindGelMaterials(model) {
@@ -806,22 +1016,7 @@ toggleBtns.forEach((btn) => {
   });
 });
 
-/* =========================
-   6) Micro interaÃ§Ãµes listas/cards
-========================= */
-gsap.utils.toArray(".benefit-item, .fragrance-card, .product-card, .badges li, .testimonial").forEach((el) => {
-  gsap.from(el, {
-    y: 20,
-    autoAlpha: 0,
-    duration: 0.8,
-    ease: "power2.out",
-    scrollTrigger: {
-      trigger: el,
-      start: "top 85%",
-      once: true,
-    },
-  });
-});
+
 
 /* =========================
    7) Comprar (placeholder)
@@ -918,58 +1113,13 @@ function start3DScrollAnimation() {
 // Exemplo: apÃ³s swapModel ou createFallbackModel, chame start3DScrollAnimation();
 window.start3DScrollAnimation = start3DScrollAnimation; // para debug
 
-/* =========================
-   FAQ accordion JS helper
-   Ensures only one accordion has the open animation by toggling .is-open
-   and keeps the URL hash in sync so :target-based styles still work.
-========================= */
-(function faqAccordionManager() {
-  const wrapper = document.querySelector('.faq-accordion');
-  if (!wrapper) return;
 
-  const accordions = Array.from(wrapper.querySelectorAll('.accordion'));
-  if (!accordions.length) return;
 
-  function closeAll() {
-    accordions.forEach(a => a.classList.remove('is-open'));
-  }
+// Init on load (after a short delay so layout for sticky/100vh is settled)
+window.addEventListener('load', () => { setTimeout(initSectionDots, 160); });
 
-  accordions.forEach((acc) => {
-    // clickable title anchor inside each accordion
-    const titleLink = acc.querySelector('.title a');
-    if (!titleLink) return;
+// Also re-init when resizing or when DOM changes that may affect sections
+window.addEventListener('resize', () => { setTimeout(initSectionDots, 220); });
 
-    titleLink.addEventListener('click', (ev) => {
-      // prevent default navigation so we control hash update consistently
-      ev.preventDefault();
-      const isOpen = acc.classList.contains('is-open');
-
-      // close others and toggle this one
-      closeAll();
-      if (!isOpen) acc.classList.add('is-open');
-
-      // update hash if the accordion has an id (keeps :target consistent)
-      if (acc.id) {
-        try { history.replaceState(null, '', '#' + acc.id); } catch (_) { location.hash = acc.id; }
-      }
-    });
-  });
-
-  // Keep UI in sync with back/forward navigation (hashchange)
-  window.addEventListener('hashchange', () => {
-    const id = location.hash ? location.hash.slice(1) : '';
-    closeAll();
-    if (id) {
-      const found = wrapper.querySelector('#' + CSS.escape(id));
-      if (found) found.classList.add('is-open');
-    }
-  });
-
-  // initialize from existing hash
-  if (location.hash) {
-    const id = location.hash.slice(1);
-    const found = wrapper.querySelector('#' + CSS.escape(id));
-    if (found) found.classList.add('is-open');
-  }
-})();
+// If content is updated dynamically, you can call initSectionDots() manually later
 
