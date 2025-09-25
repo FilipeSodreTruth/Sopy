@@ -111,8 +111,8 @@ body.theme-citrus {
 }
 
 /* Tipos */
-/* Headings use Avant Garde (Demi) */
-h1, h2, h3, h4, h5, h6 { font-family: 'Avant Garde Demi BT'; font-weight: 600; letter-spacing: 0; }
+/* Headings use Inter Tight for a tighter display; fallback to Avant Garde Demi */
+h1, h2, h3, h4, h5, h6 { font-family: 'Inter Tight', 'Avant Garde Demi BT', sans-serif; font-weight: 600; letter-spacing: 0; }
 /* Stronger display for H2 specifically */
 h2 {
   text-transform: uppercase;
@@ -165,8 +165,8 @@ p  { font-size: clamp(1rem, 1.3vw, 1.06rem); line-height: 1.55; color: var(--tex
 }
 #beneficios .section-header h2 {
   color: #ffffff;
-  /* bem maior: responsivo entre desktop grande e mobile */
-  font-size: clamp(4.5rem, 10.5vw, 90rem);
+  /* slightly reduced size to match card scale */
+  font-size: clamp(3.2rem, 8.5vw, 6.8rem);
   font-weight: 900;
   margin: 0 0 0.6rem 0;
   line-height: 0.95;
@@ -290,6 +290,38 @@ p  { font-size: clamp(1rem, 1.3vw, 1.06rem); line-height: 1.55; color: var(--tex
   #beneficios .cards-container { flex-direction: column; align-items: center; width: 90%; }
   #beneficios .column:nth-child(2) { margin-top: 0; }
   #beneficios .column { width: 100%; }
+}
+
+/* ===================== New SVG sizing & theme-aware color for beneficios cards ===================== */
+#beneficios .card-icon {
+  width: clamp(64px, 8vw, 140px); /* larger icons that scale with viewport */
+  height: auto; /* preserve svg aspect */
+  display: block;
+  margin-bottom: 18px;
+  stroke: currentColor; /* inherit from color property */
+  fill: none; /* keep stroke style unless explicit fill needed */
+}
+
+/* allow customizing icon color via a CSS variable so themes can override easily */
+#beneficios .card {
+  --icon: var(--brand);
+  color: var(--icon); /* SVG stroke uses currentColor */
+}
+
+/* theme overrides for icon color to ensure contrast across themes */
+body.theme-citrus #beneficios .card { --icon: var(--brand-dark); }
+body.theme-aqua #beneficios .card { --icon: var(--brand); }
+
+/* Ensure titles and labels have good contrast when icons change */
+#beneficios .card-title { color: #fff; font-size: 1.25rem; margin: 0 0 8px 0; }
+#beneficios .card-label { color: rgba(255,255,255,0.85); font-weight: 700; letter-spacing: .08em; }
+
+/* Make sure the blob stays behind content and doesn't cover the icon area on large screens */
+#beneficios .card-blob { transform: translate(40%, -10%); }
+
+@media (max-width: 900px) {
+  #beneficios .card { padding: 32px; height: auto; }
+  #beneficios .card-icon { width: 72px; margin-bottom: 12px; }
 }
 
 
@@ -1476,6 +1508,48 @@ body.theme-citrus #capsula-3d {
 
 }
 
+/* ========== DEPOIMENTOS (tc-testimonials) ========== */
+.tc-testimonials{ padding: clamp(40px, 6vw, 96px) 24px; overflow-x: hidden }
+.tc-wrap{ max-width: 1200px; margin: 0 auto; display: grid; gap: clamp(24px, 4vw, 48px); grid-template-columns: 1fr }
+@media (min-width: 960px){ .tc-wrap{ grid-template-columns: 1fr 1.4fr } }
+
+/* cores por tema */
+body.theme-aqua .tc-testimonials{ background: radial-gradient(60% 120% at 85% 60%, rgba(29,221,242,.10), transparent 55%), #0f0f10; color:#e9e9ee }
+body.theme-citrus .tc-testimonials{ background: radial-gradient(60% 120% at 85% 60%, rgba(95,217,126,.10), transparent 55%), #0f0f10; color:#e9e9ee }
+
+.tc-left .tc-title{ font-size: clamp(28px, 4vw, 44px); line-height:1.12; letter-spacing:.2px; margin:0 0 16px; font-weight:800 }
+.tc-sub{ color:#9aa0a6; max-width:44ch; margin:0 0 24px }
+.tc-cta{ display:flex; gap:14px; flex-wrap:wrap }
+.tc-btn{ display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 18px; border-radius:999px; text-decoration:none; font-weight:600; border:1px solid rgba(255,255,255,.06); transition: transform .2s ease, box-shadow .2s ease, background .2s ease }
+.tc-btn:focus-visible{ outline:2px solid #fff2; outline-offset:2px }
+.tc-btn--primary{ background: linear-gradient(135deg, var(--brand-2), var(--brand)); color:#1b1b1e; border:none; box-shadow: 0 10px 30px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.08) }
+.tc-btn--primary:hover{ transform: translateY(-1px) scale(1.02) }
+.tc-btn--ghost{ background:#26262b; color:#e9e9ee }
+.tc-btn--ghost:hover{ background:#2c2c31 }
+
+.tc-right{ position:relative; min-width:0 }
+.tc-topActions{ display:none !important }
+.tc-stack{ position:relative; overflow:hidden; min-width:0; touch-action: pan-y; cursor:grab; min-height:300px }
+.tc-stack.tc-grabbing{ cursor:grabbing }
+.tc-card{ background: linear-gradient(180deg, #191a1d 0%, #141418 100%); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding: clamp(22px, 3.6vw, 36px); box-shadow: 0 10px 40px rgba(0,0,0,.35); min-height:280px; display:grid; gap:18px; overflow:hidden }
+.tc-stack .tc-card{ position:absolute !important; inset:0 !important; margin:0 !important }
+.tc-card::after{ content:""; position:absolute; inset:0; background: radial-gradient(60% 140% at 100% 100%, rgba(255,86,0,.08), transparent 45%); pointer-events:none }
+.tc-quoteMark{ font-size: clamp(32px, 6vw, 52px); line-height:1; opacity:.25; user-select:none }
+.tc-quote{ margin:0; font-size: clamp(16px, 1.8vw, 18px); color:#dfe1e7; max-width:60ch; animation: tcFade .45s ease }
+@keyframes tcFade{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)} }
+.tc-cardFoot{ margin-top:6px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap }
+.tc-author{ display:flex; align-items:center; gap:12px }
+.tc-avatar{ width:44px; height:44px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,.06) }
+.tc-name{ display:block; font-weight:700 }
+.tc-role{ display:block; color:#9aa0a6; font-size:13px; margin-top:-2px }
+.tc-rating{ display:flex; align-items:center; gap:8px }
+.tc-stars{ display:flex; gap:4px }
+.tc-stars svg{ width:18px; height:18px }
+.tc-score{ color:#f2f3f7; font-weight:700 }
+.tc-dots{ margin-top:18px; display:flex; gap:10px; align-items:center; justify-content:center }
+.tc-dot{ width:12px !important; height:12px !important; aspect-ratio:1/1 !important; border-radius:50% !important; padding:0 !important; background:#34343b !important; border:1px solid rgba(255,255,255,.06) !important; transform:none !important; transition: transform .2s ease, background .2s ease, box-shadow .2s ease }
+.tc-dot[aria-selected="true"]{ background: linear-gradient(135deg, var(--brand-2), var(--brand)) !important; border-color: transparent !important; box-shadow: 0 0 0 4px rgba(7,109,242,0.18) }
+
 .capsule3d-title-over{
   position: absolute;
   top: 55%;
@@ -1512,15 +1586,49 @@ body.theme-citrus #capsula-3d {
   color: var(--muted);
   font-size: 1.4rem;
 }
-.page-footer .cols {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0,1fr));
-  gap: 24px;
-  margin: 24px 0 12px;
+.page-footer .footer-inner {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 32px;
 }
-.page-footer a { display:block; color: rgba(255,255,255,0.9); text-decoration:none; margin: 6px 0; }
+
+.page-footer .footer-left {
+  flex: 1 1 48%;
+  display:flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.page-footer .footer-cols {
+  display: flex;
+  gap: 48px;
+  align-items: flex-start;
+}
+
+.page-footer .col-sitemap, .page-footer .col-legal { min-width: 180px; }
+
+.page-footer .cols { margin: 0; }
+.page-footer a { display:block; color: rgba(255,255,255,0.95); text-decoration:none; margin: 6px 0; }
 .page-footer strong { display:block; margin-bottom:8px; color: rgba(255,255,255,0.95); }
 .page-footer .legal { opacity:.8; margin-top: 24px; color: rgba(255,255,255,0.85); }
+
+/* Social icons (only the SVGs provided) */
+.footer-social { display:flex; gap:14px; align-items:center; }
+.footer-social .social-link { display:inline-flex; width:38px; height:38px; align-items:center; justify-content:center; background: rgba(255,255,255,0.06); border-radius: 8px; }
+.footer-social .social-link svg { width:20px; height:20px; display:block; fill: currentColor; color: #ffffff; }
+
+/* Make social icons follow theme color if needed (inverse appearance on light backgrounds) */
+body.theme-citrus .footer-social .social-link { background: rgba(255,255,255,0.06); }
+body.theme-aqua .footer-social .social-link { background: rgba(255,255,255,0.06); }
+
+/* Responsive: stack on small screens */
+@media (max-width: 900px) {
+  .page-footer .footer-inner { flex-direction: column; padding: 8vh 6vw 12vh; }
+  .page-footer .footer-left, .page-footer .footer-cols { width: 100%; }
+  .page-footer .footer-cols { flex-direction: row; gap: 20px; margin-top: 12px; }
+  .page-footer .legal { text-align: center; margin-top: 18px; }
+}
 
 /* Theme-specific: citrus uses brand color with white text */
 .theme-citrus .page-footer {

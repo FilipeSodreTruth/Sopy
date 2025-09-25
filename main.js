@@ -1014,6 +1014,89 @@ function initCapsuleBubbles() {
 document.addEventListener('DOMContentLoaded', () => {
   initCapsuleBubbles();
 });
+
+// =========================
+// Testimonials (tc-testimonials)
+// =========================
+document.addEventListener('DOMContentLoaded', () => {
+  const section = document.querySelector('#testemunhos.tc-testimonials');
+  if (!section) return;
+
+  const data = [
+    { text:"Facilitou meu dia a dia. Perfume ótimo e prático.", name:"Aline Duarte", role:"SP", rating:5, avatar:"https://i.pravatar.cc/80?img=65" },
+    { text:"Resolveu manchas e economizei tempo.",           name:"Carlos Mendes", role:"RJ", rating:4.8, avatar:"https://i.pravatar.cc/80?img=33" },
+    { text:"Coloquei e esqueci, roupa sai perfeita.",        name:"Julia R.",      role:"PR", rating:4.9, avatar:"https://i.pravatar.cc/80?img=47" },
+    { text:"Virou padrão aqui em casa.",                      name:"Leo Martins",   role:"SC", rating:5,   avatar:"https://i.pravatar.cc/80?img=7"  }
+  ];
+
+  const right = section.querySelector('.tc-right');
+  if (!right) return;
+  let stack = right.querySelector('.tc-stack');
+  const firstCard = right.querySelector('.tc-card');
+  const dots = right.querySelector('.tc-dots');
+  if (!stack && firstCard) {
+    stack = document.createElement('div');
+    stack.className = 'tc-stack';
+    firstCard.parentNode.insertBefore(stack, firstCard);
+    stack.appendChild(firstCard);
+    const clone = firstCard.cloneNode(true);
+    clone.querySelectorAll('[id]').forEach(n => n.removeAttribute('id'));
+    stack.appendChild(clone);
+    if (dots && dots.parentNode) dots.parentNode.insertBefore(dots, dots);
+  }
+  if (!stack) return;
+
+  const cards = Array.from(stack.querySelectorAll('.tc-card'));
+  let curr = cards[0];
+  let nextC = cards[1];
+  let index = 0;
+
+  const starSVG = (filled=true)=>`<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2.5l3.09 6.26 6.9.99-5 4.86 1.18 6.88L12 18.77 5.83 21.5 7 14.62 2 9.75l6.9-1 3.1-6.25z" fill="${filled?'#FFA826':'none'}" stroke="#FFA826" stroke-width="1.3"/></svg>`;
+  function renderStars(container, score){
+    const full = Math.floor(score), half = score - full >= .5;
+    let html = ""; for(let i=0;i<5;i++) html += i<full?starSVG(true):(i===full&&half?starSVG(true):starSVG(false));
+    container.innerHTML = html;
+  }
+  function fillCard(card, d){
+    if(!card||!d) return;
+    card.querySelector('.tc-quote')?.replaceChildren(document.createTextNode(d.text));
+    card.querySelector('.tc-name') ?.replaceChildren(document.createTextNode(d.name));
+    card.querySelector('.tc-role') ?.replaceChildren(document.createTextNode(d.role));
+    const av = card.querySelector('.tc-avatar'); if (av) { av.src=d.avatar; av.alt=`Foto de ${d.name}`; }
+    renderStars(card.querySelector('.tc-stars'), d.rating);
+    const sc = card.querySelector('.tc-score'); if (sc) sc.textContent = d.rating.toFixed(1);
+  }
+
+  const GAP = 24;
+  const hasGSAP = () => typeof window.gsap !== 'undefined';
+  const Gset = (el, p) => { if(!el) return; if (hasGSAP()) gsap.set(el,p); else { if('x' in p) el.style.transform=`translateX(${p.x}px)`; if('opacity' in p) el.style.opacity=p.opacity; } };
+  const wPlus = () => stack.clientWidth + GAP;
+
+  const dotsEl = dots;
+  function buildDots(){ if(!dotsEl) return; dotsEl.innerHTML=''; data.forEach((_,i)=>{ const b=document.createElement('button'); b.className='tc-dot'; b.type='button'; b.role='tab'; b.setAttribute('aria-selected', i===index?'true':'false'); b.addEventListener('click',()=>slideTo(i)); dotsEl.appendChild(b); }); }
+  function updateDots(){ if(!dotsEl) return; [...dotsEl.children].forEach((d,i)=> d.setAttribute('aria-selected', i===index?'true':'false')); }
+
+  let preparedDir=0, isAnimating=false, pendingDir=1, pendingSteps=0, auto=null;
+  function prepareNext(direction){ preparedDir=direction; const w=wPlus(); const nextIndex=(index+direction+data.length)%data.length; fillCard(nextC, data[nextIndex]); Gset(nextC,{ x: direction*w, opacity:1 }); }
+  function commit(direction){ if(!preparedDir) prepareNext(direction); isAnimating=true; const w=wPlus(); const targetIndex=(index+direction+data.length)%data.length; const onComplete=()=>{ const tmp=curr; curr=nextC; nextC=tmp; index=targetIndex; updateDots(); if(pendingSteps>0){ prepareNext(pendingDir); pendingSteps--; commit(pendingDir);} else { prepareNext(1); isAnimating=false; } }; if(hasGSAP()){ gsap.timeline({defaults:{duration:.5,ease:'power3.out'}, onComplete}).to(curr,{ x:-direction*w, opacity:0 },0).to(nextC,{ x:0, opacity:1 },0); } else { Gset(curr,{ x:-direction*w, opacity:0 }); Gset(nextC,{ x:0, opacity:1 }); onComplete(); } }
+  function cancelSwipe(){ const w=wPlus(); if(hasGSAP()){ gsap.to(curr,{ x:0, opacity:1, duration:.35, ease:'power3.out' }); gsap.to(nextC,{ x:preparedDir*w, duration:.35, ease:'power3.out' }); } else { Gset(curr,{ x:0, opacity:1 }); Gset(nextC,{ x:preparedDir*w }); } }
+  function slideTo(target){ const len=data.length; if(target===index) return; const fwd=(target-index+len)%len; const back=(index-target+len)%len; const dir=fwd<=back?1:-1; const steps=Math.min(fwd,back)||1; if(isAnimating){ pendingDir=dir; pendingSteps+=steps; return; } prepareNext(dir); pendingDir=dir; pendingSteps=steps-1; commit(dir); }
+  function startAuto(){ stopAuto(); auto=setInterval(()=> slideTo((index+1)%data.length), 7000); }
+  function stopAuto(){ if(auto) clearInterval(auto); auto=null; }
+
+  fillCard(curr, data[index]);
+  prepareNext(1);
+  buildDots(); updateDots();
+  startAuto();
+
+  // drag
+  let dragging=false, startX=0, startY=0, dx=0, dy=0;
+  stack.addEventListener('pointerdown', (e)=>{ if(isAnimating) return; dragging=true; startX=e.clientX; startY=e.clientY; dx=dy=0; preparedDir=0; stopAuto(); stack.classList.add('tc-grabbing'); stack.setPointerCapture?.(e.pointerId); }, {passive:true});
+  stack.addEventListener('pointermove', (e)=>{ if(!dragging) return; dx=e.clientX-startX; dy=e.clientY-startY; if(!preparedDir && Math.abs(dx)>5 && Math.abs(dx)>Math.abs(dy)) prepareNext(dx<0?1:-1); if(!preparedDir) return; const w=wPlus(); const prog=Math.max(-1, Math.min(1, dx/w)); Gset(curr,{ x:dx, opacity: 1 - Math.min(Math.abs(prog), .2) }); Gset(nextC,{ x:preparedDir*w + dx }); });
+  function endPointer(){ if(!dragging) return; dragging=false; stack.classList.remove('tc-grabbing'); const w=wPlus(); const go = Math.abs(dx) > w*0.18 && Math.abs(dx) > Math.abs(dy); if(go && preparedDir) commit(preparedDir); else cancelSwipe(); startAuto(); }
+  stack.addEventListener('pointerup', endPointer);
+  stack.addEventListener('pointercancel', endPointer);
+});
 window.addEventListener('resize', () => {
   try { initCapsuleBubbles(); } catch (e) { }
 });
