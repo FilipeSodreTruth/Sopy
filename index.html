@@ -7,15 +7,10 @@
     <title>Sopy – Cápsulas Lava Roupas | Aqua Blu & Citrus Lush</title>
     <meta name="description" content="Cápsulas superconcentradas que removem manchas, protegem as fibras e dissolvem 100%. Todas as máquinas e temperaturas." />
 
-    <!-- FONTS (vamos definir no CSS depois) -->
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <!-- Ex.: Outfit + Inter + Anton -->
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;600;700&family=Inter:wght@400;500;600&family=Anton&display=swap" rel="stylesheet" />
-  <!-- Geist (via fontsource CDN) -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/geist@latest/400.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/geist@latest/500.css" />
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fontsource/geist@latest/600.css" />
+    <!-- Local fonts preload (Avant Garde .woff) -->
+    <link rel="preload" href="assets/fonts/AVGARDD_2.woff" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="assets/fonts/AVGARDN_2.woff" as="font" type="font/woff" crossorigin>
+    <link rel="preload" href="assets/fonts/AVGARDDO_2.woff" as="font" type="font/woff" crossorigin>
 
   <!-- CSS do projeto -->
     <link rel="stylesheet" href="styles.css" />
@@ -62,12 +57,7 @@
       </nav>
     </header>
 
-    <!-- Barra de progresso de scroll (tema: usa --brand) -->
-    <div class="progress-bar-wrap" aria-hidden="true">
-      <div class="progress-bar"></div>
-    </div>
-
-    <!-- Progress circle temporarily removed to fix scroll blocking -->
+    <!-- Barra de progresso removida -->
 
     <!-- ===================== HERO (VÍDEO) ===================== -->
     <main>
@@ -118,74 +108,129 @@
       <!-- ===================== BENEFÍCIOS ===================== -->
       <section id="beneficios" class="benefits section">
         <header class="section-header">
-          <h2>Benefícios</h2>
+          <h2>BENEFÍCIOS</h2>
           <p>Resultados de lavanderia premium em um passo.</p>
         </header>
-
-        <ul class="benefit-grid">
-          <li class="benefit-item">
-            <img src="assets/icons/enzimas.svg" alt="" />
-            <h3>Superconcentrado com enzimas</h3>
-          </li>
-          <li class="benefit-item">
-            <img src="assets/icons/manchas.svg" alt="" />
-            <h3>Combate manchas e odores</h3>
-          </li>
-          <li class="benefit-item">
-            <img src="assets/icons/cores.svg" alt="" />
-            <h3>Brancas e coloridas</h3>
-          </li>
-          <li class="benefit-item">
-            <img src="assets/icons/fibras.svg" alt="" />
-            <h3>Protege fibras e cores</h3>
-          </li>
-          <li class="benefit-item">
-            <img src="assets/icons/maquinas.svg" alt="" />
-            <h3>Todas as máquinas & temperaturas</h3>
-          </li>
-          <li class="benefit-item">
-            <img src="assets/icons/eco.svg" alt="" />
-            <h3>100% solúvel • Biodegradável • Vegan</h3>
-          </li>
-        </ul>
+            <div class="cards-container">
+              <div class="column">
+                <div class="card">
+                  <div class="card-content"><span class="card-number">50+</span><span class="card-label">Awards &amp; Recognition</span></div>
+                  <div class="card-blob"></div>
+                </div>
+                <div class="card">
+                  <div class="card-content"><span class="card-number">20+</span><span class="card-label">Creative Minds</span></div>
+                  <div class="card-blob"></div>
+                </div>
+              </div>
+              <div class="column">
+                <div class="card">
+                  <div class="card-content"><span class="card-number">900+</span><span class="card-label">Projects Completed</span></div>
+                  <div class="card-blob"></div>
+                </div>
+                <div class="card">
+                  <div class="card-content"><span class="card-number">20+</span><span class="card-label">Years of Experience</span></div>
+                  <div class="card-blob"></div>
+                </div>
+              </div>
+            </div>
       </section>
 
       <!-- ===================== COMO USAR ===================== -->
-      <section id="como-usar" class="howto section">
-        <header class="section-header">
-          <h2>Como usar</h2>
-          <p>Três passos. Só colocar na máquina.</p>
-        </header>
+    <section class="horizontal-scroll-section">
+    <div class="horizontal-track">
+      <div class="background-text">TRES PASSOS. SÓ COLOCAR NA MAQUINA</div>
 
-        <ol class="howto-steps">
-          <li>
-            <span class="step-number">1</span>
-            <p>Pegue 1 cápsula (2 para cargas grandes/alta sujeira).</p>
-          </li>
-          <li>
-            <span class="step-number">2</span>
-            <p>Coloque direto no tambor, antes das roupas.</p>
-          </li>
-          <li>
-            <span class="step-number">3</span>
-            <p>Inicie o ciclo — a cápsula dissolve 100%.</p>
-          </li>
-        </ol>
-      </section>
+      <div class="panel">
+        <div class="panel-content">
+          <div class="panel-number">01</div>
+          <p>Pegue 1 cápsula (2 para cargas grandes/alta sujeira).</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-content">
+          <div class="panel-number">02</div>
+          <p>Coloque direto no tambor, antes das roupas.</p>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="panel-content">
+          <div class="panel-number">03</div>
+          <p>Inicie o ciclo — a cápsula dissolve 100%</p>
+        </div>
+      </div>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+      <div class="progress-dot"></div>
+    </div>
+    </section>
     
-      <!-- ===================== SUSTENTABILIDADE ===================== -->
-      <section id="sustentabilidade" class="sustainability section">
-        <header class="section-header">
-          <h2>Sustentabilidade & segurança</h2>
-        </header>
+      <!-- ===================== SUSTENTABILIDADE (Parallax - estrutura do template) ===================== -->
+      <div id="sustentabilidade" class="scroll-container sustainability-parallax">
+        <section class="fullscreen-panel intro-panel">
+          <div>
+            <h1>Sustentabilidade</h1>
+            <p>Nossa tecnologia ecológica para um futuro mais limpo</p>
+          </div>
+        </section>
 
-        <ul class="badges">
-          <li><img src="assets/icons/recycle.svg" alt="" /><span>Menos plástico & água vs. líquidos</span></li>
-          <li><img src="assets/icons/biodegradable.svg" alt="" /><span>100% solúvel e biodegradável</span></li>
-          <li><img src="assets/icons/vegan.svg" alt="" /><span>Vegan • Cruelty free</span></li>
-          <li><img src="assets/icons/child.svg" alt="" /><span>Manter fora do alcance de crianças</span></li>
-        </ul>
-      </section>
+        <section class="fullscreen-panel" data-layout="left-image">
+          <div class="panel-content">
+            <div class="image-column">
+              <div class="image-wrapper">
+                <video src="/sopy/assets/videos/video.mp4" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+              </div>
+            </div>
+            <div class="text-column">
+              <h2>Menos Plástico</h2>
+              <p>Nossas embalagens usam 70% menos plástico que produtos comuns, reduzindo significativamente o impacto ambiental e a poluição dos oceanos.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="fullscreen-panel" data-layout="right-image">
+          <div class="panel-content">
+            <div class="image-column">
+              <div class="image-wrapper">
+                <video src="/sopy/assets/videos/video (1).mp4" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+              </div>
+            </div>
+            <div class="text-column">
+              <h2>100% Biodegradável</h2>
+              <p>Desenvolvemos uma fórmula completamente biodegradável que não deixa resíduos químicos prejudiciais após o uso, protegendo nossos ecossistemas.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="fullscreen-panel" data-layout="left-image">
+          <div class="panel-content">
+            <div class="image-column">
+              <div class="image-wrapper">
+                <video src="/sopy/assets/videos/video (2).mp4" autoplay loop muted playsinline style="width:100%;height:100%;object-fit:cover;"></video>
+              </div>
+            </div>
+            <div class="text-column">
+              <h2>Vegan & Cruelty Free</h2>
+              <p>Produtos 100% veganos e livres de testes em animais, certificados internacionalmente e desenvolvidos com ingredientes de origem ética.</p>
+            </div>
+          </div>
+        </section>
+          
+        <section class="fullscreen-panel" data-layout="right-image">
+          <div class="panel-content">
+            <div class="image-column">
+              <div class="image-wrapper">
+                <img src="https://images.unsplash.com/photo-1506784983877-45594efa4cbe?q=80&w=2068&auto=format&fit=crop" alt="Família usando produtos seguros">
+              </div>
+            </div>
+            <div class="text-column">
+              <h2>Segurança Familiar</h2>
+              <p>Segurança garantida para toda a família, incluindo crianças e bebês. Fórmula hipoalergênica e testada dermatologicamente para os mais sensíveis.</p>
+            </div>
+          </div>
+        </section>
+      </div>
 
       <!-- ===================== DEPOIMENTOS (estilo premium) ===================== -->
       <section id="testemunhos" class="testimonials section testimonials--glass" aria-labelledby="testimonials-title">
@@ -250,15 +295,28 @@
       </section>
     </main>
 
-    <!-- ===================== FOOTER ===================== -->
-    <footer class="site-footer">
+    <!-- ===================== FOOTER (page-footer with theme colors) ===================== -->
+    <footer class="page-footer">
       <div class="footer-inner">
-        <p>© 2025 Sopy</p>
-        <nav class="footer-links">
-          <a href="#">Termos</a>
-          <a href="#">Privacidade</a>
-          <a href="#loja">Comprar</a>
-        </nav>
+        <h3>Footer</h3>
+        <div class="cols">
+          <div>
+            <strong>Shop</strong>
+            <a href="#">Bottles</a>
+            <a href="#">Merch</a>
+          </div>
+          <div>
+            <strong>About</strong>
+            <a href="#">The Journey</a>
+            <a href="#">Sustainability</a>
+          </div>
+          <div>
+            <strong>Contact</strong>
+            <a href="#">Instagram</a>
+            <a href="#">Support</a>
+          </div>
+        </div>
+        <p class="legal">© 2025 Sopy</p>
       </div>
     </footer>
 
@@ -286,9 +344,16 @@
     <!-- Cursor global: colocado no final do body para garantir stacking acima de seções -->
     <div class="cursor" aria-hidden="true"></div>
     <!-- Fragrance toggle moved to global scope so it stays visible on all sections -->
-    <div class="fragrance-toggle" role="tablist" aria-label="Escolha a fragrância">
-      <button class="toggle-option btn" role="tab" aria-selected="false" data-theme="aqua" data-color="#076DF2" data-accent="#1DDDF2">Aqua Blu</button>
-      <button class="toggle-option btn is-active" role="tab" aria-selected="true" data-theme="citrus" data-color="#5FD97E" data-accent="#91D9A3">Citrus Lush</button>
+    <div class="product-toggle-container">
+      <input type="checkbox" id="product-toggle" class="pod-toggle-checkbox">
+      <label for="product-toggle" class="pod-toggle-label">
+        <div class="pod-toggle-handle">
+          <div class="pod-image-wrapper">
+            <img src="assets/images/17.png" alt="Produto Verde" class="pod-image green">
+            <img src="assets/images/hit one (5).png" alt="Produto Azul" class="pod-image blue">
+          </div>
+        </div>
+      </label>
     </div>
 
     <!-- Section navigation dots (generated by JS) -->

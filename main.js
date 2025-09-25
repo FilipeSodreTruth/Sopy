@@ -1,20 +1,186 @@
-﻿// Pin de 1 segundo ao final da seção 3D
+﻿(function(){
+  // Parallax Vertical com Cobertura (escopado para a seção sustentabilidade)
+  document.addEventListener('DOMContentLoaded', () => {
+    const container = document.querySelector('#sustentabilidade.scroll-container.sustainability-parallax');
+    if (!container) return;
+
+    const panels = Array.from(container.querySelectorAll('.fullscreen-panel'));
+    let viewportH = window.innerHeight;
+
+    // CRÍTICO: Define a altura total para permitir o empilhamento dos sticky panels
+    function setContainerHeight() {
+      container.style.height = `${panels.length * 100}vh`;
+    }
+    setContainerHeight();
+
+    const ZOOM_AMOUNT = 0.15;
+    const BORDER_RADIUS_AMOUNT = 50;
+    let ticking = false;
+
+    function updateAnimation() {
+      const scrollY = window.scrollY;
+      const rect = container.getBoundingClientRect();
+      const containerTop = scrollY + rect.top;
+      const relativeScroll = scrollY - containerTop;
+      const containerHeight = container.offsetHeight;
+
+      // só anima quando estamos sobre a seção
+      if (relativeScroll < 0 || relativeScroll > containerHeight) {
+        ticking = false;
+        return;
+      }
+
+      const currentIndex = Math.floor(relativeScroll / viewportH);
+      const progress = (relativeScroll % viewportH) / viewportH;
+
+      panels.forEach((panel, i) => {
+        const imageWrapper = panel.querySelector('.image-wrapper');
+        if (!imageWrapper) return;
+
+        if (i === currentIndex) {
+          const scale = 1 - (progress * ZOOM_AMOUNT);
+          const br = 16 + (progress * BORDER_RADIUS_AMOUNT);
+          imageWrapper.style.transform = `scale(${scale})`;
+          imageWrapper.style.borderRadius = `${br}px`;
+        } else if (i < currentIndex) {
+          const finalScale = 1 - ZOOM_AMOUNT;
+          const finalBR = 16 + BORDER_RADIUS_AMOUNT;
+          imageWrapper.style.transform = `scale(${finalScale})`;
+          imageWrapper.style.borderRadius = `${finalBR}px`;
+        } else {
+          imageWrapper.style.transform = 'scale(1)';
+          imageWrapper.style.borderRadius = '16px';
+        }
+      });
+      
+      ticking = false;
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        window.requestAnimationFrame(updateAnimation);
+        ticking = true;
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', () => {
+      viewportH = window.innerHeight;
+      setContainerHeight();
+      updateAnimation();
+    });
+
+    // primeira atualização
+    updateAnimation();
+  });
+})();
+// Horizontal Scroll para seção COMO USAR (header dentro da section)
 document.addEventListener('DOMContentLoaded', () => {
-  if (typeof ScrollTrigger !== 'undefined' && document.getElementById('capsula-3d')) {
+  gsap.registerPlugin(ScrollTrigger);
+
+  const track = document.querySelector('.horizontal-track');
+  const section = document.querySelector('.horizontal-scroll-section');
+  const panels = gsap.utils.toArray(".panel");
+  const dots = gsap.utils.toArray(".progress-dot");
+
+  if (!track || !section) return;
+
+  let horizontalTween = gsap.to(track, {
+    x: () => -(track.scrollWidth - window.innerWidth),
+    ease: "none",
+    scrollTrigger: {
+      trigger: track, // trigger no track para evitar conflito com header
+      start: "top top",
+      end: () => "+=" + (track.scrollWidth - window.innerWidth),
+      scrub: 1.5, 
+      pin: track, // pin apenas o track
+      invalidateOnRefresh: true
+    }
+  });
+  
+  panels.forEach((panel, i) => {
     ScrollTrigger.create({
-      trigger: '#capsula-3d',
-      start: 'bottom bottom',
-      end: '+=1', // 1px de pin, mas controlado pelo onEnter/onLeave
-      pin: true,
-      pinSpacing: true,
-      scrub: false,
-      onEnter: self => {
-        // trava por 1s ao chegar no final
-        setTimeout(() => self.disable(), 1000);
-      },
+      containerAnimation: horizontalTween,
+      trigger: panel,
+      start: "left center",
+      end: "right center",
+      toggleClass: {
+        targets: dots[i],
+        className: "active"
+      }
+    });
+  });
+
+  // Toggle visibility of the fixed progress bar while the horizontal track is pinned
+  const progressBar = document.querySelector('.progress-bar');
+  if (progressBar && typeof ScrollTrigger !== 'undefined') {
+    ScrollTrigger.create({
+      trigger: track,
+      start: 'top top',
+      end: () => "+=" + (track.scrollWidth - window.innerWidth),
+      onEnter: () => progressBar.classList.add('visible'),
+      onEnterBack: () => progressBar.classList.add('visible'),
+      onLeave: () => progressBar.classList.remove('visible'),
+      onLeaveBack: () => progressBar.classList.remove('visible'),
+      markers: false,
+      invalidateOnRefresh: true
     });
   }
 });
+
+// FAQ accordion toggle functionality
+document.addEventListener('DOMContentLoaded', () => {
+  const allAccordions = document.querySelectorAll('#faq .faq-accordion');
+
+  allAccordions.forEach(accordion => {
+    const titleLink = accordion.querySelector('.title a');
+    
+    if (titleLink) {
+      titleLink.addEventListener('click', (event) => {
+        event.preventDefault(); // Impede o comportamento padr3o do link
+
+        // click coords relative to the clicked accordion
+        const rect = accordion.getBoundingClientRect();
+        const clickX = event.clientX - rect.left; // px from left of card
+        const clickY = event.clientY - rect.top;  // px from top of card
+
+        // Close other open accordions toward the click point (compute coords relative to each)
+        allAccordions.forEach(acc => {
+          if (acc === accordion) return;
+          if (acc.classList.contains('open')) {
+            const r = acc.getBoundingClientRect();
+            const x = event.clientX - r.left;
+            const y = event.clientY - r.top;
+            acc.style.setProperty('--circle-x', `${x}px`);
+            acc.style.setProperty('--circle-y', `${y}px`);
+            // force reflow so the CSS var is applied before starting the close animation
+            // eslint-disable-next-line no-unused-expressions
+            acc.offsetWidth;
+            acc.classList.remove('open');
+          }
+        });
+
+        const isOpen = accordion.classList.contains('open');
+
+        // Set the click origin for the clicked accordion
+        accordion.style.setProperty('--circle-x', `${clickX}px`);
+        accordion.style.setProperty('--circle-y', `${clickY}px`);
+        // force reflow so the CSS var is applied before toggling class
+        // eslint-disable-next-line no-unused-expressions
+        accordion.offsetWidth;
+
+        if (isOpen) {
+          // close this accordion toward the click point
+          accordion.classList.remove('open');
+        } else {
+          // open this accordion from the click point
+          accordion.classList.add('open');
+        }
+      });
+    }
+  });
+});
+
 /* =========================
   1) GSAP Setup + Lenis (limpo)
 ========================= */
@@ -76,16 +242,22 @@ if (typeof SplitText !== "undefined") _plugins.push(SplitText);
 gsap.registerPlugin(..._plugins);
 CustomEase.create("hop", "0.9,0,0.1,1");
 
-/* Lenis (scroll suave) */
-const lenis = new Lenis({
-  duration: 1.2,
-  smoothWheel: true,
-  smoothTouch: false,
-  lerp: 0.1,
-});
-lenis.on("scroll", ScrollTrigger.update);
-gsap.ticker.add((t) => lenis.raf(t * 1000));
+/* Lenis (scroll suave) - configuração igual ao exemplo */
+const lenis = new Lenis()
+lenis.on('scroll', ScrollTrigger.update)
+gsap.ticker.add((time)=>{
+  lenis.raf(time * 1000)
+})
+gsap.ticker.lagSmoothing(0)
+
+// Configuração do GSAP
 gsap.ticker.lagSmoothing(0);
+
+// Observer para atualizar o Lenis quando necessário
+const resizeObserver = new ResizeObserver(() => {
+  lenis.resize();
+});
+resizeObserver.observe(document.body);
 
 // Sempre iniciar no topo ao recarregar
 try {
@@ -234,6 +406,23 @@ tlLoader
     duration: 0.6,
     ease: "power2.out",
     stagger: 0.08,
+  })
+  // Footer overlap animation - slide up to cover previous section
+  .add(() => {
+    const footer = document.querySelector('.page-footer');
+    if (footer && typeof ScrollTrigger !== 'undefined') {
+      ScrollTrigger.create({
+        trigger: footer,
+        start: 'top bottom-=100px', // trigger when footer approaches viewport
+        end: 'bottom bottom',
+        scrub: 1.2,
+        animation: gsap.fromTo(footer, 
+          { y: 100 }, // start position (down)
+          { y: 0, ease: "none" } // end position (normal)
+        ),
+        invalidateOnRefresh: true
+      });
+    }
   });
 
 
@@ -553,7 +742,7 @@ function initCapsuleBubbles() {
 
   // --- OBJETOS (AS BOLHAS) ---
   const bubbles = [];
-  const bubbleCount = 20; // Mais bolhas para preencher mais o espaço
+  const bubbleCount = 10; // Mais bolhas para preencher mais o espaço
   const bubbleGeometry = new THREE.SphereGeometry(1, 64, 64);
 
   const bubbleMaterial = new THREE.MeshPhysicalMaterial({
@@ -1016,7 +1205,82 @@ toggleBtns.forEach((btn) => {
   });
 });
 
+// Toggle animado de produtos: troca tema do site
+const productToggle = document.getElementById('product-toggle');
+if (productToggle) {
+  productToggle.addEventListener('change', function() {
+    if (productToggle.checked) {
+      document.body.classList.add('theme-aqua');
+      document.body.classList.remove('theme-citrus');
+    } else {
+      document.body.classList.add('theme-citrus');
+      document.body.classList.remove('theme-aqua');
+    }
+    // Se existir função setTheme/theme 3D, chame aqui
+    if (typeof setTheme === 'function') {
+      setTheme(productToggle.checked ? 'aqua' : 'citrus');
+    }
+  });
+}
 
+/* =========================
+   BENEFÍCIOS — Cards com hover blob + animação GSAP/ScrollTrigger
+   Código adicionado a pedido do usuário — roda somente se o container existir
+========================= */
+document.addEventListener('DOMContentLoaded', () => {
+  const benefitsSection = document.getElementById('beneficios');
+  if (!benefitsSection) return;
+
+  // Hover blob follow
+  const cards = benefitsSection.querySelectorAll('.card');
+  cards.forEach(card => {
+    const blob = card.querySelector('.card-blob');
+    if (!blob) return;
+    card.addEventListener('mousemove', (e) => {
+      const rect = card.getBoundingClientRect();
+      const x = e.clientX - rect.left;
+      const y = e.clientY - rect.top;
+      blob.style.transform = `translate(${x - (blob.clientWidth / 2)}px, ${y - (blob.clientHeight / 2)}px)`;
+    });
+  });
+
+  // GSAP entrance animations (guardar presença das libs)
+  try {
+    if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
+      gsap.registerPlugin(ScrollTrigger);
+
+      gsap.from("#beneficios .column:nth-child(1) .card", {
+        scrollTrigger: {
+          trigger: "#beneficios .cards-container",
+          start: "top 80%",
+          end: "center 70%",
+          scrub: 0.3,
+        },
+        y: 50,
+        x: -250,
+        rotation: -20,
+        opacity: 0,
+        stagger: 0.2
+      });
+
+      gsap.from("#beneficios .column:nth-child(2) .card", {
+        scrollTrigger: {
+          trigger: "#beneficios .cards-container",
+          start: "top 50%",
+          end: "center 30%",
+          scrub: 1,
+        },
+        y: 50,
+        x: 250,
+        rotation: 20,
+        opacity: 0,
+        stagger: 0.2
+      });
+    }
+  } catch (e) {
+    console.warn('Benefícios animation init failed', e);
+  }
+});
 
 /* =========================
    7) Comprar (placeholder)
@@ -1122,4 +1386,35 @@ window.addEventListener('load', () => { setTimeout(initSectionDots, 160); });
 window.addEventListener('resize', () => { setTimeout(initSectionDots, 220); });
 
 // If content is updated dynamically, you can call initSectionDots() manually later
+
+/* =========================
+   Footer Parallax
+   Faz o footer se mover levemente pra cima enquanto entra na viewport,
+   criando a impressão de que sobrepõe a seção anterior.
+========================= */
+(function footerParallax() {
+  if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+  const footer = document.querySelector('.site-footer');
+  if (!footer) return;
+
+  // Inicialmente empurra o footer para baixo (para criar o movimento de subida)
+  gsap.set(footer, { yPercent: 10 });
+
+  ScrollTrigger.create({
+    trigger: footer,
+    start: 'top bottom', // quando o topo do footer encontra a base da viewport
+    end: 'bottom top',   // até o final do footer sair do topo
+    scrub: 1.2,
+    invalidateOnRefresh: true,
+    onUpdate: self => {
+      // Normaliza progress entre 0 e 1
+      const p = clamp(self.progress, 0, 1);
+      // Interpola yPercent de 10 -> 0 para dar a sensação de subida
+      gsap.to(footer, { yPercent: (1 - p) * 10, duration: 0.6, ease: 'power2.out' });
+    }
+  });
+})();
+
+
+
 
