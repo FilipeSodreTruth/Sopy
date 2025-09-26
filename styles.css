@@ -192,6 +192,49 @@ p  { font-size: clamp(1rem, 1.3vw, 1.06rem); line-height: 1.55; color: var(--tex
   width: min(1300px, 96%);
   margin: 0 auto;
 }
+
+/* ====== SplitText helpers (Osmo style) ====== */
+/* Estilos para animações Osmo */
+.split-line, 
+.split-word, 
+.split-char {
+  overflow: hidden !important;
+  display: inline-block !important;
+  vertical-align: top;
+  position: relative;
+}
+
+.split-line > span, 
+.split-word > span, 
+.split-char > span {
+  display: inline-block !important;
+  will-change: transform;
+  /* REMOVIDO: transform: translateY(110%) !important; - isso vai ser definido pelo GSAP */
+}
+
+/* Fix para parágrafos */
+p .split-word {
+  margin-right: 0.25em;
+}
+
+/* Evitar problemas de alinhamento */
+h1 .split-line, 
+h2 .split-line, 
+h3 .split-line {
+  width: 100%;
+  display: block;
+}
+
+/* Classes adicionais para garantir visibilidade do efeito */
+[data-split-type] {
+  overflow: hidden !important;
+}
+
+/* Força o mascaramento para elementos que foram splitados */
+h1[class*="split"], h2[class*="split"], h3[class*="split"], 
+p[class*="split"], .section-header[class*="split"] {
+  overflow: visible !important; /* permite que as linhas internas sejam mascaradas individualmente */
+}
 .card-large {
   position: relative;
   background: #fff; /* white surface like the sketch */
@@ -495,7 +538,7 @@ body.nav-hidden .site-header {
 .hero-content h1 {
   color: var(--brand-dark);
   text-shadow: 0 2px 12px rgba(0,0,0,.28);
-  font-size: 4.5rem; line-height: 1.05;
+  font-size: 5.5rem; line-height: 1.05;
 }
 .hero-content p { max-width: 780px; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,.25); }
 .hero section, .hero { color: #fff; }
@@ -1009,7 +1052,7 @@ body.theme-aqua .panel-content {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #1a1a1a; /* garante fundo escuro */
+  background-color: transparent !important; /* allow section theme background to show through */
 }
 
 /* Container flexível para o conteúdo do painel */
@@ -1061,6 +1104,9 @@ body.theme-aqua .panel-content {
   height: 100%;
 }
 
+/* center text vertically inside the text column */
+.sustainability-parallax .text-column { display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding: 2rem; }
+
 /* central por padrão; alinhamento final vem do data-layout */
 .sustainability-parallax .image-column { align-items: center; }
 
@@ -1082,9 +1128,9 @@ body.theme-aqua .panel-content {
 
 /* Estilos de texto */
 .sustainability-parallax .text-column h2 {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
-  line-height: 1.1;
-  margin-bottom: 1.5rem;
+  font-size: clamp(2.8rem, 6.5vw, 5rem);
+  line-height: 1.02;
+  margin-bottom: 1rem;
   color: #f0f0f0;
 }
 
@@ -1229,6 +1275,8 @@ body.theme-citrus .t-card, body.theme-aqua .t-card { color: #0e0f12; background:
 
 /* ========== FAQ (accordeão animado) ========== */
 #faq { scroll-margin-top: 96px; }
+
+#faq h2 { color: #fff; }
 
 #faq .faq-accordion {
   --d: 0deg;
@@ -1463,7 +1511,7 @@ body.theme-aqua #como-usar {
 
 
 body.theme-aqua #sustentabilidade {
-  background: #EAF2F8; /* secondary */
+  background: #0D1B2A; /* aqua theme: set to requested blue */
 }
 
 body.theme-aqua #testemunhos {
@@ -1492,7 +1540,7 @@ body.theme-citrus #fragrancias {
 }
 
 body.theme-citrus #sustentabilidade {
-  background: 	#F5F5DC; /* secondary */
+  background: #1B4332; /* updated to requested green for both themes */
 }
 
 body.theme-citrus #testemunhos {
@@ -1508,40 +1556,49 @@ body.theme-citrus #capsula-3d {
 
 }
 
-/* ========== DEPOIMENTOS (tc-testimonials) ========== */
-.tc-testimonials{ padding: clamp(40px, 6vw, 96px) 24px; overflow-x: hidden }
-.tc-wrap{ max-width: 1200px; margin: 0 auto; display: grid; gap: clamp(24px, 4vw, 48px); grid-template-columns: 1fr }
+/* Ensure panels inside the sustainability section use a solid background matching the section theme */
+body.theme-aqua #sustentabilidade .fullscreen-panel {
+  background-color: #0D1B2A !important; /* solid blue for aqua theme */
+}
+
+body.theme-citrus #sustentabilidade .fullscreen-panel {
+  background-color: #1B4332 !important; /* solid green for citrus theme */
+}
+
+.tc-testimonials{ padding: clamp(24px, 6vw, 56px) 24px; overflow-x: hidden; min-height: 100vh; display:flex; align-items:center }
+.tc-wrap{ max-width: 1200px; margin: 0 auto; display: grid; gap: clamp(20px, 4vw, 40px); grid-template-columns: 1fr }
 @media (min-width: 960px){ .tc-wrap{ grid-template-columns: 1fr 1.4fr } }
 
-/* cores por tema */
-body.theme-aqua .tc-testimonials{ background: radial-gradient(60% 120% at 85% 60%, rgba(29,221,242,.10), transparent 55%), #0f0f10; color:#e9e9ee }
-body.theme-citrus .tc-testimonials{ background: radial-gradient(60% 120% at 85% 60%, rgba(95,217,126,.10), transparent 55%), #0f0f10; color:#e9e9ee }
+/* cores por tema (section background) */
+body.theme-aqua .tc-testimonials{ background: radial-gradient(60% 120% at 85% 60%, rgba(29,221,242,.06), transparent 55%), var(--brand-dark); color:#e9e9ee }
+body.theme-citrus .tc-testimonials{ background: radial-gradient(60% 120% at 85% 60%, rgba(95,217,126,.06), transparent 55%), var(--brand-dark); color:#e9e9ee }
 
 .tc-left .tc-title{ font-size: clamp(28px, 4vw, 44px); line-height:1.12; letter-spacing:.2px; margin:0 0 16px; font-weight:800 }
-.tc-sub{ color:#9aa0a6; max-width:44ch; margin:0 0 24px }
+.tc-sub{ color:#cfd6d8; max-width:44ch; margin:0 0 24px }
 .tc-cta{ display:flex; gap:14px; flex-wrap:wrap }
 .tc-btn{ display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 18px; border-radius:999px; text-decoration:none; font-weight:600; border:1px solid rgba(255,255,255,.06); transition: transform .2s ease, box-shadow .2s ease, background .2s ease }
 .tc-btn:focus-visible{ outline:2px solid #fff2; outline-offset:2px }
 .tc-btn--primary{ background: linear-gradient(135deg, var(--brand-2), var(--brand)); color:#1b1b1e; border:none; box-shadow: 0 10px 30px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.08) }
 .tc-btn--primary:hover{ transform: translateY(-1px) scale(1.02) }
-.tc-btn--ghost{ background:#26262b; color:#e9e9ee }
-.tc-btn--ghost:hover{ background:#2c2c31 }
+.tc-btn--ghost{ background: transparent; color:#e9e9ee; border:1px solid rgba(255,255,255,0.06) }
+.tc-btn--ghost:hover{ background: rgba(255,255,255,0.02) }
 
 .tc-right{ position:relative; min-width:0 }
 .tc-topActions{ display:none !important }
 .tc-stack{ position:relative; overflow:hidden; min-width:0; touch-action: pan-y; cursor:grab; min-height:300px }
 .tc-stack.tc-grabbing{ cursor:grabbing }
-.tc-card{ background: linear-gradient(180deg, #191a1d 0%, #141418 100%); border:1px solid rgba(255,255,255,.06); border-radius:16px; padding: clamp(22px, 3.6vw, 36px); box-shadow: 0 10px 40px rgba(0,0,0,.35); min-height:280px; display:grid; gap:18px; overflow:hidden }
+/* Glassmorphism cards: translucent surface, blur backdrop, soft border and subtle shadow */
+.tc-card{ background: rgba(255,255,255,0.06); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,0.12); border-radius:16px; padding: clamp(20px, 3.2vw, 34px); box-shadow: 0 8px 30px rgba(6,10,12,0.22); min-height:280px; display:grid; gap:18px; overflow:hidden; color: inherit }
 .tc-stack .tc-card{ position:absolute !important; inset:0 !important; margin:0 !important }
-.tc-card::after{ content:""; position:absolute; inset:0; background: radial-gradient(60% 140% at 100% 100%, rgba(255,86,0,.08), transparent 45%); pointer-events:none }
-.tc-quoteMark{ font-size: clamp(32px, 6vw, 52px); line-height:1; opacity:.25; user-select:none }
-.tc-quote{ margin:0; font-size: clamp(16px, 1.8vw, 18px); color:#dfe1e7; max-width:60ch; animation: tcFade .45s ease }
+.tc-card::after{ content:""; position:absolute; inset:0; background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01)); pointer-events:none }
+.tc-quoteMark{ font-size: clamp(32px, 6vw, 52px); line-height:1; opacity:.14; user-select:none }
+.tc-quote{ margin:0; font-size: clamp(16px, 1.8vw, 18px); color: rgba(255,255,255,0.95); max-width:60ch; animation: tcFade .45s ease }
 @keyframes tcFade{ from{opacity:0; transform:translateY(6px)} to{opacity:1; transform:translateY(0)} }
 .tc-cardFoot{ margin-top:6px; display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap }
 .tc-author{ display:flex; align-items:center; gap:12px }
-.tc-avatar{ width:44px; height:44px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,.06) }
+.tc-avatar{ width:44px; height:44px; border-radius:50%; object-fit:cover; border:1px solid rgba(255,255,255,.06); background: rgba(255,255,255,0.04) }
 .tc-name{ display:block; font-weight:700 }
-.tc-role{ display:block; color:#9aa0a6; font-size:13px; margin-top:-2px }
+.tc-role{ display:block; color:#cfd6d8; font-size:13px; margin-top:-2px }
 .tc-rating{ display:flex; align-items:center; gap:8px }
 .tc-stars{ display:flex; gap:4px }
 .tc-stars svg{ width:18px; height:18px }

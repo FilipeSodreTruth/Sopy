@@ -238,9 +238,189 @@ function setupButtonRipples() {
 
 // Inicializar ripples apÃ³s DOM estar pronto
 document.addEventListener('DOMContentLoaded', setupButtonRipples);
-if (typeof SplitText !== "undefined") _plugins.push(SplitText);
-gsap.registerPlugin(..._plugins);
-CustomEase.create("hop", "0.9,0,0.1,1");
+
+/* =========================
+   SplitText: Osmo Style Animations (exclude #hero)
+========================= */
+// Esperar que tudo carregue completamente
+window.addEventListener('load', function() {
+  // Dar um tempo extra para garantir que tudo está pronto
+  setTimeout(() => {
+    // Confirmar que GSAP está carregado
+    if (typeof gsap === "undefined") {
+      console.error("GSAP não encontrado!");
+      return;
+    }
+    
+    // Registrar plugins
+    if (typeof gsap.registerPlugin === "function") {
+      gsap.registerPlugin(ScrollTrigger, CustomEase);
+    }
+    
+    // Criar custom ease exatamente como no Osmo
+    if (typeof CustomEase === "function") {
+      CustomEase.create("osmo-ease", "0.625, 0.05, 0, 1");
+    }
+    
+    // Adicionar CSS diretamente para garantir mascaramento
+    const style = document.createElement('style');
+    style.textContent = `
+      .split-line, .split-word, .split-char {
+        overflow: hidden !important;
+        position: relative;
+        display: inline-block;
+        vertical-align: top;
+      }
+      .split-line > *, .split-word > *, .split-char > * {
+        display: inline-block;
+        will-change: transform;
+      }
+    `;
+    document.head.appendChild(style);
+    
+    // Obter TODOS os elementos de texto exceto os do hero
+  const titles = document.querySelectorAll('h1:not(#hero *), h2:not(#hero *), h3:not(#hero *), h4:not(#hero *), .tc-title, .tc-sub');
+  const paragraphs = document.querySelectorAll('p:not(#hero *), .tc-quote, .subtitle, .card-label, .footer-desc');
+  // Buttons only (exclude FAQ links entirely to keep them clickable)
+  const buttons = document.querySelectorAll('.btn:not(#hero *), .tc-btn:not(#hero *)');
+
+  console.log(`Found: ${titles.length} titles, ${paragraphs.length} paragraphs, ${buttons.length} buttons`);
+    
+    // Função para animar elemento
+    function animateElement(element, type = 'lines') {
+      // Garantir que o elemento existe
+      if (!element || !element.textContent.trim()) return;
+      
+      console.log(`Animating ${element.tagName} with ${type}`);
+      
+      // 1. Quebrar o texto
+      let result;
+      try {
+        if (type === 'lines') {
+          result = new SplitType(element, { 
+            types: 'lines',
+            lineClass: 'split-line'
+          });
+        } else if (type === 'words') {
+          result = new SplitType(element, { 
+            types: 'words',
+            wordClass: 'split-word'
+          });
+        } else {
+          result = new SplitType(element, { 
+            types: 'chars',
+            charClass: 'split-char'
+          });
+        }
+      } catch (e) {
+        console.error(`Error splitting ${element.tagName}:`, e);
+        return;
+      }
+      
+      // 2. Adicionar spans internos para conteúdo
+      let targets = [];
+      if (type === 'lines' && result.lines) {
+        result.lines.forEach(line => {
+          const content = line.innerHTML;
+          line.innerHTML = `<span>${content}</span>`;
+          targets.push(line.children[0]);
+        });
+      } else if (type === 'words' && result.words) {
+        result.words.forEach(word => {
+          const content = word.innerHTML;
+          word.innerHTML = `<span>${content}</span>`;
+          targets.push(word.children[0]);
+        });
+      } else if (result.chars) {
+        result.chars.forEach(char => {
+          const content = char.innerHTML;
+          char.innerHTML = `<span>${content}</span>`;
+          targets.push(char.children[0]);
+        });
+      }
+      
+      // 3. Aplicar animação com stagger
+      if (targets.length) {
+        // Config baseada no tipo (como no exemplo Osmo)
+        const config = {
+          lines: { duration: 0.8, stagger: 0.08 },
+          words: { duration: 0.6, stagger: 0.05 },
+          letters: { duration: 0.4, stagger: 0.02 }
+        };
+        
+        // Pegar config correta
+        const { duration, stagger } = config[type === 'chars' ? 'letters' : type] || config.lines;
+        
+        // PRIMEIRO: Definir estado inicial (escondido)
+        gsap.set(targets, {
+          y: "110%",
+          force3D: true
+        });
+        
+        // DEPOIS: Animação GSAP para mostrar
+        return gsap.to(targets, {
+          y: "0%",
+          duration: duration,
+          stagger: stagger,
+          ease: "osmo-ease",
+          force3D: true,
+          scrollTrigger: {
+            trigger: element,
+            start: "top 85%",
+            once: true,
+            onEnter: () => console.log(`⚡ Triggered: ${element.tagName}`)
+          }
+        });
+      }
+    }
+    
+    // Processar elementos por grupo e tipo
+    // Skip titles inside FAQ to preserve click behavior
+    titles.forEach(element => {
+      if (element.closest('#faq')) return;
+      animateElement(element, 'lines');
+    });
+    paragraphs.forEach(element => animateElement(element, 'words'));
+    // Animate buttons by words (avoids weird letter spacing on buttons)
+    buttons.forEach(element => animateElement(element, 'words'));
+
+    // Add a simple fade/slide-in to FAQ cards (no text splitting)
+    document.querySelectorAll('#faq .faq-accordion').forEach(acc => {
+      gsap.from(acc, {
+        opacity: 0,
+        y: 24,
+        duration: 0.6,
+        ease: 'osmo-ease',
+        scrollTrigger: {
+          trigger: acc,
+          start: 'top 90%',
+          once: true
+        }
+      });
+    });
+    
+    console.log("✅ Osmo animations initialized!");
+    
+    // Forçar ScrollTrigger refresh
+    if (ScrollTrigger) ScrollTrigger.refresh();
+    
+  }, 800); // Aumento do delay para garantir que o Lenis está pronto
+});
+
+  function initAll() {
+    // Build a stable list: only visible in DOM
+    const candidates = Array.from(document.querySelectorAll(selector));
+    candidates.forEach(createFor);
+  }
+
+  function destroyAll() {
+    instances.forEach(({ split, tween, el }) => {
+      if (tween && tween.kill) tween.kill();
+      if (split && split.revert) split.revert();
+      if (el && el.dataset) delete el.dataset.splitDone;
+    });
+    instances = [];
+  }
 
 /* Lenis (scroll suave) - configuração igual ao exemplo */
 const lenis = new Lenis()
@@ -1461,14 +1641,6 @@ function start3DScrollAnimation() {
 window.start3DScrollAnimation = start3DScrollAnimation; // para debug
 
 
-
-// Init on load (after a short delay so layout for sticky/100vh is settled)
-window.addEventListener('load', () => { setTimeout(initSectionDots, 160); });
-
-// Also re-init when resizing or when DOM changes that may affect sections
-window.addEventListener('resize', () => { setTimeout(initSectionDots, 220); });
-
-// If content is updated dynamically, you can call initSectionDots() manually later
 
 /* =========================
    Footer Parallax
