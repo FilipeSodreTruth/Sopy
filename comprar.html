@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Comprar SOPY - Clean Revolution</title>
+    <meta name="description" content="Compre agora as cápsulas SOPY e revolucione sua limpeza. Frete grátis e garantia de 30 dias.">
+    <link rel="stylesheet" href="/sopy/comprar.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+</head>
+<body>
+    <!-- Header -->
+    <header class="border-b bg-card/50 backdrop-blur-sm sticky top-0 z-50">
+        <div class="container mx-auto px-4 py-4 flex items-center justify-between">
+            <a href="index.html" class="flex items-center gap-2">
+                <img src="/sopy/assets/images/sopy_letters_only.png" alt="SOPY" style="height:40px;" />
+            </a>
+            <div class="flex items-center gap-4">
+                <div class="bg-primary/10 text-primary px-3 py-1 rounded-full text-sm font-medium">
+                    Frete Grátis
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <div class="container mx-auto px-4 py-8">
+        <div class="grid lg:grid-cols-2 gap-12">
+            <!-- Product Images -->
+            <div class="space-y-4">
+                <div class="aspect-square bg-gradient-to-br from-primary/10 to-accent/10 rounded-2xl p-8 flex items-center justify-center">
+                    <img
+                    id="main-product-image"
+                    src="/sopy/assets/images/1.png"
+                    alt="Sopy Cleaning Capsule"
+                    class="w-full h-full object-contain"
+                    draggable="false"
+                    />
+                </div>
+
+                <!-- Image thumbnails for verde variant -->
+                <div id="verde-gallery" class="verde-gallery grid grid-cols-3 gap-4">
+                    <button
+                        class="thumbnail-btn aspect-square bg-muted rounded-lg p-4 flex items-center justify-center transition-all"
+                        data-image="/sopy/assets/images/1.png"
+                    >
+                        <img
+                            src="/sopy/assets/images/1.png"
+                            alt="Sopy Verde - Cápsula"
+                            class="w-full h-full object-contain"
+                        />
+                    </button>
+                    <button
+                        class="thumbnail-btn aspect-square bg-muted rounded-lg p-4 flex items-center justify-center transition-all"
+                        data-image="/sopy/assets/images/3.png"
+                    >
+                        <img
+                            src="/sopy/assets/images/3.png"
+                            alt="Sopy Verde - Pote"
+                            class="w-full h-full object-contain"
+                        />
+                    </button>
+                    <button
+                        class="thumbnail-btn aspect-square bg-muted rounded-lg p-4 flex items-center justify-center transition-all"
+                        data-image="/sopy/assets/images/6.png"
+                    >
+                        <img
+                            src="/sopy/assets/images/6.png"
+                            alt="Sopy Verde - Pouch"
+                            class="w-full h-full object-contain"
+                        />
+                    </button>
+                </div>
+
+                <!-- Image thumbnails for azul variant -->
+                <div id="azul-gallery" class="azul-gallery grid grid-cols-3 gap-4 hidden">
+                    <button
+                        class="thumbnail-btn aspect-square bg-muted rounded-lg p-4 flex items-center justify-center transition-all"
+                        data-image="/sopy/assets/images/2.png"
+                    >
+                        <img
+                            src="/sopy/assets/images/2.png"
+                            alt="Sopy Azul - Cápsula"
+                            class="w-full h-full object-contain"
+                        />
+                    </button>
+                    <button
+                        class="thumbnail-btn aspect-square bg-muted rounded-lg p-4 flex items-center justify-center transition-all"
+                        data-image="/sopy/assets/images/4.png"
+                    >
+                        <img
+                            src="/sopy/assets/images/4.png"
+                            alt="Sopy Azul - Pote"
+                            class="w-full h-full object-contain"
+                        />
+                    </button>
+                    <button
+                        class="thumbnail-btn aspect-square bg-muted rounded-lg p-4 flex items-center justify-center transition-all"
+                        data-image="/sopy/assets/images/5.png"
+                    >
+                        <img
+                            src="/sopy/assets/images/5.png"
+                            alt="Sopy Azul - Pouch"
+                            class="w-full h-full object-contain"
+                        />
+                    </button>
+                </div>
+
+                <!-- Benefits Icons -->
+                <div class="grid grid-cols-3 gap-4 mt-8">
+                    <div class="card p-4 text-center bg-primary/5">
+                        <svg class="w-8 h-8 text-primary mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
+                        <p class="text-sm font-medium">Frete Grátis</p>
+                        <p class="text-xs text-muted-foreground">Em todo Brasil</p>
+                    </div>
+                    <div class="card p-4 text-center bg-primary/5">
+                        <svg class="w-8 h-8 text-primary mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        <p class="text-sm font-medium">Garantia</p>
+                        <p class="text-xs text-muted-foreground">30 dias</p>
+                    </div>
+                    <div class="card p-4 text-center bg-primary/5">
+                        <svg class="w-8 h-8 text-primary mx-auto mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        <p class="text-sm font-medium">Dissolução</p>
+                        <p class="text-xs text-muted-foreground">Instantânea</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Details -->
+            <div class="space-y-6">
+                <div>
+                    <div class="flex items-center gap-2 mb-2">
+                        <div class="flex">
+                            <svg class="w-4 h-4 fill-yellow-400 text-yellow-400" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            <svg class="w-4 h-4 fill-yellow-400 text-yellow-400" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            <svg class="w-4 h-4 fill-yellow-400 text-yellow-400" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            <svg class="w-4 h-4 fill-yellow-400 text-yellow-400" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                            <svg class="w-4 h-4 fill-yellow-400 text-yellow-400" viewBox="0 0 20 20">
+                                <path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/>
+                            </svg>
+                        </div>
+                        <span class="text-sm text-muted-foreground">5.0 estrelas</span>
+                    </div>
+
+                    <h1 class="text-3xl font-bold mb-4">Sopy Cápsulas de Limpeza</h1>
+
+                    <p class="text-lg text-muted-foreground mb-6">
+                        Revolução na limpeza com dissolução instantânea. Cada cápsula contém a fórmula perfeita para uma limpeza
+                        profunda e eficaz.
+                    </p>
+                </div>
+
+                <!-- Variant Selection -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-gray-800">Variante</h3>
+                    <div class="grid grid-cols-2 gap-3">
+                        <button
+                            class="variant-btn variant-circle p-4 rounded-xl border-2 transition-all border-primary bg-white shadow-sm active"
+                            data-variant="verde"
+                            data-color="#2dd36d"
+                        >
+                            <div class="w-6 h-6 rounded-full mx-auto mb-2" style="background-color: #2dd36d;"></div>
+                            <p class="text-sm font-medium">Citrus Lush</p>
+                        </button>
+                        <button
+                            class="variant-btn variant-circle p-4 rounded-xl border-2 transition-all bg-white shadow-sm"
+                            data-variant="azul"
+                            data-color="#29aae1"
+                        >
+                            <div class="w-6 h-6 rounded-full mx-auto mb-2" style="background-color: #29aae1;"></div>
+                            <p class="text-sm font-medium">Aqua Blu</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Size Selection -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-gray-800">Quantidade</h3>
+                    <div class="grid grid-cols-3 gap-3">
+                        <button
+                            class="size-btn quantity-button p-4 rounded-xl transition-all"
+                            data-size="25"
+                            data-price="89.90"
+                        >
+                            <p class="font-medium">25 Cápsulas</p>
+                            <p class="text-sm opacity-75">R$ 89,90</p>
+                        </button>
+                        <button
+                            class="size-btn quantity-button p-4 rounded-xl transition-all active"
+                            data-size="50"
+                            data-price="159.90"
+                        >
+                            <p class="font-medium">50 Cápsulas</p>
+                            <p class="text-sm opacity-75">R$ 159,90</p>
+                        </button>
+                        <button
+                            class="size-btn quantity-button p-4 rounded-xl transition-all"
+                            data-size="100"
+                            data-price="289.90"
+                        >
+                            <p class="font-medium">100 Cápsulas</p>
+                            <p class="text-sm opacity-75">R$ 289,90</p>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Payment Method -->
+                <div>
+                    <h3 class="font-semibold mb-3 text-gray-800">Método de pagamento</h3>
+                    <div class="space-y-3">
+                        <div
+                            class="payment-btn payment-method-card p-4 cursor-pointer transition-all rounded-xl selected"
+                            data-payment="unica"
+                        >
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <p class="font-medium">Compra única</p>
+                                    <p class="text-2xl font-bold">R$ <span id="single-price">159,90</span></p>
+                                </div>
+                                
+                            </div>
+                        </div>
+
+                        <div
+                            class="payment-btn payment-method-card p-4 cursor-pointer transition-all rounded-xl"
+                            data-payment="assinatura"
+                        >
+                            <div class="flex items-center justify-between">
+                                <div>
+                                    <div class="flex items-center gap-2 mb-1">
+                                        <p class="font-medium">Assine e economize</p>
+                                        <span class="bg-orange-100 text-orange-700 text-xs px-2 py-1 rounded-full font-medium">15% OFF</span>
+                                    </div>
+                                    <p class="text-2xl font-bold">R$ <span id="subscription-price">135,91</span></p>
+                                    <p class="text-sm opacity-75">por mês para assinantes</p>
+                                </div>
+                                
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Benefits -->
+                <div class="grid grid-cols-2 gap-4 p-4 rounded-xl bg-gray-50 border border-gray-200">
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1"/>
+                        </svg>
+                        <span class="text-sm text-gray-700">15% de desconto por 12 meses</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                        </svg>
+                        <span class="text-sm text-gray-700">Frete grátis em todos os envios</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+                        </svg>
+                        <span class="text-sm text-gray-700">Entrega automática</span>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <svg class="w-4 h-4 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+                        </svg>
+                        <span class="text-sm">Cancele quando quiser</span>
+                    </div>
+                </div>
+
+                <!-- Quantity and Add to Cart -->
+                <div class="space-y-4">
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center border rounded-lg">
+                            <button
+                                id="decrease-qty"
+                                class="btn btn-ghost px-3"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/>
+                                </svg>
+                            </button>
+                            <span id="quantity" class="px-4 py-2 font-medium">1</span>
+                            <button
+                                id="increase-qty"
+                                class="btn btn-ghost px-3"
+                            >
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                    <button id="add-to-cart" class="btn-primary cart-button w-full text-white font-semibold py-4 px-6 rounded-xl transition-all duration-300 hover:scale-105 flex items-center justify-center gap-2 text-lg">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4m15.6 0L7 13m0 0L5.4 5M7 13l-2.293 2.293A1 1 0 004 16v2a1 1 0 001 1h16a1 1 0 001-1v-2a1 1 0 00-.293-.707L7 13z"/>
+                        </svg>
+                        <span>Adicionar ao Carrinho - R$ <span id="cart-price">159,90</span></span>
+                    </button>
+                </div>
+
+                <!-- FAQ -->
+                <div class="mt-12">
+                    <h3 class="text-xl font-bold mb-6">Perguntas Frequentes</h3>
+                    <div class="space-y-2">
+                        <div class="accordion-item border rounded-lg">
+                            <button class="accordion-trigger w-full text-left p-4 flex justify-between items-center">
+                                <span class="font-medium">O que é o Sopy?</span>
+                                <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div class="accordion-content hidden p-4">
+                                <p class="text-muted-foreground">
+                                    O Sopy é uma cápsula revolucionária de limpeza que se dissolve instantaneamente, proporcionando uma
+                                    limpeza profunda e eficaz em qualquer superfície.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item border rounded-lg">
+                            <button class="accordion-trigger w-full text-left p-4 flex justify-between items-center">
+                                <span class="font-medium">Qual a dosagem recomendada do Sopy?</span>
+                                <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div class="accordion-content hidden p-4">
+                                <p class="text-muted-foreground">
+                                    Recomendamos 1 cápsula para cada 500ml de água. Para limpezas mais intensas, use 2 cápsulas por
+                                    500ml de água.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item border rounded-lg">
+                            <button class="accordion-trigger w-full text-left p-4 flex justify-between items-center">
+                                <span class="font-medium">Quanto tempo leva para dissolver?</span>
+                                <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div class="accordion-content hidden p-4">
+                                <p class="text-muted-foreground">
+                                    O Sopy se dissolve completamente em menos de 30 segundos quando em contato com água, liberando
+                                    imediatamente seus agentes de limpeza.
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="accordion-item border rounded-lg">
+                            <button class="accordion-trigger w-full text-left p-4 flex justify-between items-center">
+                                <span class="font-medium">O Sopy é seguro para todas as superfícies?</span>
+                                <svg class="w-5 h-5 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/>
+                                </svg>
+                            </button>
+                            <div class="accordion-content hidden p-4">
+                                <p class="text-muted-foreground">
+                                    Sim! O Sopy foi desenvolvido para ser seguro em vidros, cerâmicas, metais, plásticos e a maioria das
+                                    superfícies domésticas.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="purchase.js"></script>
+    <script src="purchase2.js"></script>
+</body>
+</html>

@@ -1,29 +1,7 @@
-﻿/* ===== Footer logo and social icons fix ===== */
-.footer-brand .nav-logo img {
-  max-width: 120px;
-  height: auto;
-  display: block;
-}
-
-.footer-brand {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-}
-
-.footer-brand .footer-desc {
-  margin: 0;
-  font-size: 1rem;
-  color: #fff;
-  max-width: 320px;
-}
-
-.footer-inner .social-link img,
-.footer-inner .social-link svg {
-  width: 32px;
-  height: 32px;
-  display: inline-block;
-  vertical-align: middle;
+﻿.btn, .btn-primary, .btn-outline {
+  letter-spacing: 0.02em;
+  padding-left: 2.2em;
+  padding-right: 2.2em;
 }
 /* -------------------------------------------------------
    SOPY â€“ styles.css
@@ -465,9 +443,9 @@ body.nav-hidden .site-header {
   --_bd: var(--brand);
   position: relative;
   display: inline-flex; align-items: center; justify-content: center;
-  gap: .5rem; padding: .85rem 1.2rem; border-radius: 999rem;
+  gap: .5rem; padding: .85rem 1.8rem; border-radius: 999rem;
   border: 1px solid var(--_bd); background: var(--_bg); color: var(--_fg);
-  font-weight: 600; letter-spacing: .01em; box-shadow: none; 
+  font-weight: 600; letter-spacing: .05em; box-shadow: none; 
   transition: transform .12s ease, background .2s ease, box-shadow .2s ease, color .2s ease, border-color .2s ease;
   overflow: hidden;
 }
@@ -514,9 +492,10 @@ body.nav-hidden .site-header {
 .hero, #hero {
   display: flex;
   flex-direction: column;
+  /* Use small viewport units and include safe-area to avoid notch overlap */
   min-height: 100svh;
-  padding-top: calc(clamp(96px, 14vh, 180px) + env(safe-area-inset-top)); /* mais espaço acima do título */
-  justify-content: flex-start; /* puxa o conteúdo para o topo no desktop */
+  padding-top: calc(clamp(96px, 16vh, 200px) + env(safe-area-inset-top)); /* mais espaço acima */
+  justify-content: flex-start; /* alinha o conteúdo para o topo */
 }
 
 .hero-media {
@@ -1633,8 +1612,32 @@ body.theme-citrus .tc-testimonials{ background: radial-gradient(60% 120% at 85% 
 .tc-left .tc-title{ font-size: clamp(28px, 4vw, 44px); line-height:1.12; letter-spacing:.2px; margin:0 0 16px; font-weight:800 }
 .tc-sub{ color:#cfd6d8; max-width:44ch; margin:0 0 24px }
 .tc-cta{ display:flex; gap:14px; flex-wrap:wrap }
-.tc-btn{ display:inline-flex; align-items:center; justify-content:center; height:44px; padding:0 18px; border-radius:999px; text-decoration:none; font-weight:600; border:1px solid rgba(255,255,255,.06); transition: transform .2s ease, box-shadow .2s ease, background .2s ease }
+/* Match header CTA (.btn) spacing/behavior */
+.tc-btn{
+  --_bg: var(--brand);
+  --_fg: #fff;
+  --_bd: var(--brand);
+  position: relative;
+  display:inline-flex; align-items:center; justify-content:center; gap:.5rem;
+  padding:.85rem 1.8rem; border-radius:999rem;
+  border:1px solid var(--_bd); background: var(--_bg); color: var(--_fg);
+  font-weight:600; letter-spacing:.05em; text-decoration:none; box-shadow:none;
+  transition: transform .12s ease, background .2s ease, box-shadow .2s ease, color .2s ease, border-color .2s ease;
+  overflow:hidden;
+}
+.tc-btn::before{
+  content:"";
+  position:absolute; left:var(--xPos, 50%); top:var(--yPos, 50%);
+  transform:translate(-50%, -50%);
+  width:0; height:0; background-color:rgba(255,255,255,0.15);
+  border-radius:50%; transition: width 1.5s ease, height 1.5s ease; z-index:0;
+}
+.tc-btn *{ position:relative; z-index:1; }
+.tc-btn:hover{ transform: translateY(-1px); box-shadow: 0 10px 18px rgba(0,0,0,.08); }
+.tc-btn:active{ transform: translateY(0); box-shadow: none; }
+.tc-btn:hover::before{ width:400px; height:400px; }
 .tc-btn:focus-visible{ outline:2px solid #fff2; outline-offset:2px }
+/* Keep the visual variant similar but on top of header-like base */
 .tc-btn--primary{ background: linear-gradient(135deg, var(--brand-2), var(--brand)); color:#1b1b1e; border:none; box-shadow: 0 10px 30px rgba(0,0,0,.25), inset 0 0 0 1px rgba(255,255,255,.08) }
 .tc-btn--primary:hover{ transform: translateY(-1px) scale(1.02) }
 .tc-btn--ghost{ background: transparent; color:#e9e9ee; border:1px solid rgba(255,255,255,0.06) }
