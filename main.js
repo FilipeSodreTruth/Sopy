@@ -80,52 +80,159 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const track = document.querySelector('.horizontal-track');
   const section = document.querySelector('.horizontal-scroll-section');
-  const panels = gsap.utils.toArray(".panel");
-  const dots = gsap.utils.toArray(".progress-dot");
-
+  const panels = gsap.utils.toArray('.panel');
+  const dots = gsap.utils.toArray('.progress-dot');
+  const progressBar = document.querySelector('.progress-bar');
   if (!track || !section) return;
 
-  let horizontalTween = gsap.to(track, {
-    x: () => -(track.scrollWidth - window.innerWidth),
-    ease: "none",
-    scrollTrigger: {
-      trigger: track, // trigger no track para evitar conflito com header
-      start: "top top",
-      end: () => "+=" + (track.scrollWidth - window.innerWidth),
-      scrub: 1.5, 
-      pin: track, // pin apenas o track
-      invalidateOnRefresh: true
+  let horizontalTween = null;
+  let triggers = [];
+  let mode = null; // 'desktop' | 'mobile'
+
+  function clearDesktop() {
+    if (horizontalTween) {
+      horizontalTween.kill();
+      horizontalTween = null;
     }
-  });
-  
-  panels.forEach((panel, i) => {
-    ScrollTrigger.create({
-      containerAnimation: horizontalTween,
-      trigger: panel,
-      start: "left center",
-      end: "right center",
-      toggleClass: {
-        targets: dots[i],
-        className: "active"
+    triggers.forEach(t => t.kill && t.kill());
+    triggers = [];
+    // remove transforms applied by gsap
+    gsap.set(track, { clearProps: 'transform' });
+  }
+
+  function setupDesktop() {
+    mode = 'desktop';
+    // GSAP pinned horizontal scroll
+    horizontalTween = gsap.to(track, {
+      x: () => -(track.scrollWidth - window.innerWidth),
+      ease: 'none',
+      scrollTrigger: {
+        trigger: track,
+        start: 'top top',
+        end: () => '+=' + (track.scrollWidth - window.innerWidth),
+        scrub: 1.5,
+        pin: track,
+        invalidateOnRefresh: true
       }
     });
-  });
 
-  // Toggle visibility of the fixed progress bar while the horizontal track is pinned
-  const progressBar = document.querySelector('.progress-bar');
-  if (progressBar && typeof ScrollTrigger !== 'undefined') {
-    ScrollTrigger.create({
-      trigger: track,
-      start: 'top top',
-      end: () => "+=" + (track.scrollWidth - window.innerWidth),
-      onEnter: () => progressBar.classList.add('visible'),
-      onEnterBack: () => progressBar.classList.add('visible'),
-      onLeave: () => progressBar.classList.remove('visible'),
-      onLeaveBack: () => progressBar.classList.remove('visible'),
-      markers: false,
-      invalidateOnRefresh: true
+    panels.forEach((panel, i) => {
+      const st = ScrollTrigger.create({
+        containerAnimation: horizontalTween,
+        trigger: panel,
+        start: 'left center',
+        end: 'right center',
+        toggleClass: { targets: dots[i], className: 'active' }
+      });
+      triggers.push(st);
     });
+
+    if (progressBar) {
+      const st = ScrollTrigger.create({
+        trigger: track,
+        start: 'top top',
+        end: () => '+=' + (track.scrollWidth - window.innerWidth),
+        onEnter: () => progressBar.classList.add('visible'),
+        onEnterBack: () => progressBar.classList.add('visible'),
+        onLeave: () => progressBar.classList.remove('visible'),
+        onLeaveBack: () => progressBar.classList.remove('visible'),
+        markers: false,
+        invalidateOnRefresh: true
+      });
+      triggers.push(st);
+    }
   }
+
+  function setupMobile() {
+    mode = 'mobile';
+    clearDesktop();
+    // Build a testimonials-like slider for the panels
+    const existingStack = section.querySelector('.cu-stack');
+    let stack = existingStack;
+    if (!stack) {
+      stack = document.createElement('div');
+      stack.className = 'cu-stack';
+      const insertBefore = progressBar || track.nextSibling;
+      section.insertBefore(stack, insertBefore || null);
+      // create cards from panels
+      panels.forEach(p => {
+        const card = document.createElement('div');
+        card.className = 'cu-card';
+        const content = p.querySelector('.panel-content') ? p.querySelector('.panel-content').cloneNode(true) : p.cloneNode(true);
+        card.appendChild(content);
+        stack.appendChild(card);
+      });
+    }
+
+    const cards = Array.from(stack.querySelectorAll('.cu-card'));
+    if (cards.length === 0) return;
+
+    // Helpers similar to testimonials
+    const hasGSAP = () => typeof window.gsap !== 'undefined';
+    const Gset = (el, p) => { if(!el) return; if (hasGSAP()) gsap.set(el,p); else { if('x' in p) el.style.transform=`translateX(${p.x}px)`; if('opacity' in p) el.style.opacity=p.opacity; } };
+    const GAP = 24;
+    const wPlus = () => stack.clientWidth + GAP;
+
+    let index = 0; let curr = cards[0]; let nextC = cards[1] || cards[0];
+    function updateDots(){ dots.forEach((d,i)=> d && d.classList.toggle('active', i===index)); }
+    function prepareNext(direction){ const w=wPlus(); const nextIndex=(index+direction+cards.length)%cards.length; nextC = cards[nextIndex]; Gset(nextC,{ x: direction*w, opacity:1, zIndex:2 }); Gset(curr,{ x:0, opacity:1, zIndex:1 }); }
+    let preparedDir=0, isAnimating=false, pendingDir=1, pendingSteps=0;
+    function commit(direction){ if(!preparedDir) { preparedDir=direction; prepareNext(direction);} isAnimating=true; const w=wPlus(); const targetIndex=(index+direction+cards.length)%cards.length; const onComplete=()=>{ const tmp=curr; curr=nextC; nextC=tmp; index=targetIndex; updateDots(); preparedDir=0; if(pendingSteps>0){ pendingSteps--; commit(pendingDir);} else { isAnimating=false; } };
+      if(hasGSAP()) { gsap.timeline({defaults:{duration:.5,ease:'power3.out'}, onComplete}).to(curr,{ x:-direction*w, opacity:0 },0).to(nextC,{ x:0, opacity:1 },0); }
+      else { Gset(curr,{ x:-direction*w, opacity:0 }); Gset(nextC,{ x:0, opacity:1 }); onComplete(); }
+    }
+    function cancelSwipe(){ const w=wPlus(); if(hasGSAP()){ gsap.to(curr,{ x:0, opacity:1, duration:.3, ease:'power3.out' }); gsap.to(nextC,{ x:preparedDir*w, duration:.3, ease:'power3.out' }); } else { Gset(curr,{ x:0, opacity:1 }); Gset(nextC,{ x:preparedDir*w }); } }
+    function slideTo(target){ const len=cards.length; if(target===index) return; const fwd=(target-index+len)%len; const back=(index-target+len)%len; const dir=fwd<=back?1:-1; const steps=Math.min(fwd,back)||1; if(isAnimating){ pendingDir=dir; pendingSteps+=steps; return; } preparedDir=dir; prepareNext(dir); pendingDir=dir; pendingSteps=steps-1; commit(dir); }
+
+    // init positions
+    cards.forEach((c,i)=> Gset(c, { x: i===0?0:wPlus(), opacity:i===0?1:0 }));
+    updateDots();
+
+    // dots click
+    dots.forEach((d,i)=> d && d.addEventListener('click', ()=> slideTo(i)));
+
+    // drag with pointer events
+    let dragging=false, startX=0, startY=0, dx=0, dy=0;
+    const onDown = (e)=>{ dragging=true; preparedDir=0; startX=e.clientX||e.touches?.[0]?.clientX||0; startY=e.clientY||e.touches?.[0]?.clientY||0; stack.classList.add('cu-grabbing'); };
+    const onMove = (e)=>{ if(!dragging) return; const x=(e.clientX||e.touches?.[0]?.clientX||0); const y=(e.clientY||e.touches?.[0]?.clientY||0); dx=x-startX; dy=y-startY; if(Math.abs(dx) > Math.abs(dy)) { e.preventDefault(); const dir = dx<0?1:-1; if(!preparedDir){ preparedDir=dir; prepareNext(dir);} const w=wPlus(); const progress = Math.max(-w, Math.min(w, dx)); Gset(curr,{ x: progress }); Gset(nextC,{ x: dir*w + progress }); } };
+    const onUp = ()=>{ if(!dragging) return; dragging=false; stack.classList.remove('cu-grabbing'); const w=wPlus(); if(Math.abs(dx) > w*0.2){ commit(preparedDir||1); } else { cancelSwipe(); } dx=0; dy=0; };
+    stack.addEventListener('pointerdown', onDown, { passive: true });
+    stack.addEventListener('pointermove', onMove, { passive: false });
+    window.addEventListener('pointerup', onUp, { passive: true });
+    stack.addEventListener('touchstart', onDown, { passive: true });
+    stack.addEventListener('touchmove', onMove, { passive: false });
+    window.addEventListener('touchend', onUp, { passive: true });
+
+    // show progress bar while in view
+    if (progressBar) {
+      const st = ScrollTrigger.create({
+        trigger: section,
+        start: 'top 80%',
+        end: 'bottom 20%',
+        onEnter: () => progressBar.classList.add('visible'),
+        onEnterBack: () => progressBar.classList.add('visible'),
+        onLeave: () => progressBar.classList.remove('visible'),
+        onLeaveBack: () => progressBar.classList.remove('visible')
+      });
+      triggers.push(st);
+    }
+  }
+
+  function init() {
+    const isMobile = window.matchMedia('(max-width: 900px)').matches;
+    if (isMobile && mode !== 'mobile') setupMobile();
+    else if (!isMobile && mode !== 'desktop') setupDesktop();
+  }
+
+  init();
+  window.addEventListener('resize', () => {
+    // debounce a bit
+    clearTimeout(window.__horiz_rsz);
+    window.__horiz_rsz = setTimeout(() => {
+      init();
+      ScrollTrigger.refresh();
+    }, 150);
+  });
 });
 
 // FAQ accordion toggle functionality

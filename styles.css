@@ -1,4 +1,31 @@
-﻿/* -------------------------------------------------------
+﻿/* ===== Footer logo and social icons fix ===== */
+.footer-brand .nav-logo img {
+  max-width: 120px;
+  height: auto;
+  display: block;
+}
+
+.footer-brand {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
+.footer-brand .footer-desc {
+  margin: 0;
+  font-size: 1rem;
+  color: #fff;
+  max-width: 320px;
+}
+
+.footer-inner .social-link img,
+.footer-inner .social-link svg {
+  width: 32px;
+  height: 32px;
+  display: inline-block;
+  vertical-align: middle;
+}
+/* -------------------------------------------------------
    SOPY â€“ styles.css
    Reset + Tokens + Layout + States para animaÃ§Ãµes GSAP
    (HTML: a estrutura que te enviei)
@@ -487,9 +514,9 @@ body.nav-hidden .site-header {
 .hero, #hero {
   display: flex;
   flex-direction: column;
-  min-height: 100vh;
-  padding-top: clamp(48px, 8vh, 96px); /* sobe o conteÃºdo, respeitando a header fixa */
-  justify-content: flex-start;
+  min-height: 100svh;
+  padding-top: calc(clamp(96px, 14vh, 180px) + env(safe-area-inset-top)); /* mais espaço acima do título */
+  justify-content: flex-start; /* puxa o conteúdo para o topo no desktop */
 }
 
 .hero-media {
@@ -538,7 +565,11 @@ body.nav-hidden .site-header {
 .hero-content h1 {
   color: var(--brand-dark);
   text-shadow: 0 2px 12px rgba(0,0,0,.28);
-  font-size: 5.5rem; line-height: 1.05;
+  /* Large on desktop, scales down fluidly on smaller screens */
+  font-size: clamp(2.6rem, 10vw, 5.5rem);
+  line-height: 1.02;
+  letter-spacing: -0.005em;
+  text-wrap: balance;
 }
 .hero-content p { max-width: 780px; color: #ffffff; text-shadow: 0 2px 10px rgba(0,0,0,.25); }
 .hero section, .hero { color: #fff; }
@@ -698,8 +729,9 @@ body.nav-hidden .site-header {
   max-width: 520px;
   z-index: 60;
   pointer-events: none;
-  opacity: 0;
-  transition: opacity .45s cubic-bezier(.22,.9,.25,1), transform .45s cubic-bezier(.22,.9,.25,1);
+  opacity: 0; /* hidden by default */
+  visibility: hidden; /* extra hide to ensure it doesn't show */
+  transition: opacity .45s cubic-bezier(.22,.9,.25,1), transform .45s cubic-bezier(.22,.9,.25,1), visibility .45s;
 }
 .capsule-3d-cta-inner {
   background: rgba(255,255,255,0.02); /* subtle surface */
@@ -721,23 +753,18 @@ body.nav-hidden .site-header {
 
 /* Limita o deslocamento direito para evitar overflow em telas muito pequenas */
 @media (max-width: 480px) {
-  .capsule-3d-cta { right: 12px; left: auto; max-width: calc(100% - 48px); }
-}
-
-/* Quando o 3D terminar a animação, a CTA vira um bloco "estático" no final da seção.
-   Usamos position: absolute relativo ao container para que ela aparente estar "colada"
-   ao produto, sem mais transform animations. */
-.capsule-3d-cta.at-end {
-  position: absolute; /* será posicionado relativo ao #capsula-3d */
-  /* aumenta deslocamento para ficar mais ao lado do objeto */
-  right: calc(-3vw + 120px);
-  top: auto;
-  /* sobe o bloco (menos bottom) para ficar mais alinhado verticalmente com o produto */
-  bottom: 20.5rem;
-  transform: none;
-  opacity: 1;
-  pointer-events: auto;
-  z-index: 4; /* abaixo do canvas mas acima do fundo */
+  .capsule-3d-cta.at-end {
+    position: absolute; /* será posicionado relativo ao #capsula-3d */
+    /* aumenta deslocamento para ficar mais ao lado do objeto */
+    right: calc(-3vw + 120px);
+    top: auto;
+    /* sobe o bloco (menos bottom) para ficar mais alinhado verticalmente com o produto */
+    bottom: 20.5rem;
+    transform: none;
+    /* Remove opacity: 1 - só deve aparecer quando JS adicionar is-visible */
+    pointer-events: auto;
+    z-index: 4; /* abaixo do canvas mas acima do fundo */
+  }
 }
 
 @media (max-width: 900px) {
@@ -793,30 +820,29 @@ body.nav-hidden .site-header {
 }
 .pod-toggle-label {
     display: inline-block;
-    width: 160px;
-    height: 80px;
-    border-radius: 40px;
+    width: 120px; /* smaller */
+    height: 60px; /* smaller */
+    border-radius: 36px;
     position: relative;
     cursor: pointer;
-    box-shadow: inset 0 4px 10px rgba(0, 0, 0, 0.1), 0 2px 5px rgba(255, 255, 255, 0.5);
+    box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.08), 0 1px 4px rgba(255, 255, 255, 0.45);
     background-color: #5cb85c;
-    border: 5px solid #449d44;
-    transition: background-color 0.45s cubic-bezier(.2,.8,.2,1), border-color 0.45s cubic-bezier(.2,.8,.2,1);
+    border: 4px solid #449d44;
+    transition: background-color 0.35s cubic-bezier(.2,.8,.2,1), border-color 0.35s cubic-bezier(.2,.8,.2,1);
 }
 .pod-toggle-handle {
   position: absolute;
   /* vertically center the handle inside the label */
   top: 50%;
-  left: 5px;
-  width: 70px;
-  height: 70px;
+  left: 6px;
+  width: 48px; /* smaller */
+  height: 48px; /* smaller */
   background-color: #fff;
   border-radius: 50%;
-  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
-  /* use CSS variable for horizontal translation so we can keep vertical centering */
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.16);
   --tx: 0px;
   transform: translate(var(--tx), -50%);
-  transition: transform 1s cubic-bezier(.2,.8,.2,1), box-shadow 0.35s ease;
+  transition: transform 0.6s cubic-bezier(.2,.8,.2,1), box-shadow 0.25s ease;
   will-change: transform;
   overflow: hidden;
 }
@@ -839,8 +865,8 @@ body.nav-hidden .site-header {
 .pod-image.blue { opacity: 0; }
 .pod-toggle-checkbox:checked + .pod-toggle-label .pod-toggle-handle {
   /* move the handle to the right while preserving vertical centering */
-  --tx: 70px;
-  transform: translate(70px, -50%); /* set explicit transform to ensure smooth animation across browsers */
+  --tx: 56px; /* adjusted for smaller label */
+  transform: translate(56px, -50%); /* set explicit transform to ensure smooth animation across browsers */
 }
 .pod-toggle-checkbox:checked + .pod-toggle-label {
     background-color: #007bff;
@@ -874,6 +900,10 @@ body.nav-hidden .site-header {
   background-color: var(--brand-dark);
   padding: clamp(24px, 6vw, 64px) 0 60px 0; /* padding inferior reduzido para ficar mais próximo */
 }
+
+.how-title { display: none; }
+/* Hide mobile slider by default (desktop) */
+.cu-stack{ display:none; }
 
 .horizontal-track {
   display: flex;
@@ -1105,16 +1135,22 @@ body.theme-aqua .panel-content {
 }
 
 /* center text vertically inside the text column */
-.sustainability-parallax .text-column { display:flex; flex-direction:column; justify-content:center; align-items:flex-start; padding: 2rem; }
+.sustainability-parallax .text-column { 
+  display:flex; 
+  flex-direction:column; 
+  justify-content:flex-start; /* move texto para o topo */
+  align-items:flex-start; 
+  padding: 3rem 2rem; /* mais padding no topo */
+}
 
 /* central por padrão; alinhamento final vem do data-layout */
 .sustainability-parallax .image-column { align-items: center; }
 
 /* Container da imagem com proporção fixa */
 .sustainability-parallax .image-wrapper {
-  width: clamp(280px, 45vw, 480px);
+  width: clamp(320px, 48vw, 520px);
   margin: 0 auto;
-  aspect-ratio: 3 / 4.5;
+  aspect-ratio: 3 / 4.1; /* um pouco maior que antes */
   overflow: hidden;
   border-radius: 16px;
   transform-origin: center center;
@@ -1137,7 +1173,7 @@ body.theme-aqua .panel-content {
 .sustainability-parallax .text-column p {
   font-size: 1.1rem;
   line-height: 1.7;
-  color: #a0a0a0;
+  color: #ffffff; /* changed from gray to white */
   max-width: 55ch;
 }
 
@@ -1156,7 +1192,7 @@ body.theme-aqua .panel-content {
 
 .sustainability-parallax .intro-panel p {
   font-size: 1.2rem;
-  color: #a0a0a0;
+  color: #ffffff; /* changed from gray to white */
 }
 
 /* Responsividade */
@@ -1463,6 +1499,11 @@ body.theme-citrus #faq .faq-accordion {
   .fragrance-grid { grid-template-columns: 1fr; }
   .shop .product-grid { grid-template-columns: 1fr 1fr; }
   .testimonial-grid { grid-template-columns: 1fr; }
+  /* Hero adjustments – tighter mask and more room for title */
+  :root { --mask-start: 58%; --seam-height: 18vh; }
+  .hero-content { width: min(100%, 92%); padding-inline: 16px; }
+  .hero-content h1 { font-size: clamp(2.2rem, 9.5vw, 3.6rem); line-height: .98; }
+  .hero-ctas { justify-content: center; gap: 10px; }
 }
 
 @media (max-width: 600px) {
@@ -1470,6 +1511,22 @@ body.theme-citrus #faq .faq-accordion {
   .hero-ctas { width: 100%; justify-content: center; }
   .fragrance-toggle { right: 12px; bottom: 12px; padding: 6px; }
   .btn { width: 100%; }
+  /* Make hero title very bold and multi-line; reduce video seam */
+  :root { --mask-start: 62%; --seam-height: 16vh; }
+  /* Force the hero to start content near the top on small screens */
+  .hero, #hero { 
+    min-height: 100svh; 
+    height: 100svh; /* força altura completa para preencher */
+    padding-top: calc(110px + env(safe-area-inset-top)); /* mais espaço acima para o header */
+    justify-content: flex-start; /* puxa o conteúdo para o topo */
+    align-items: stretch;
+  }
+  .hero-content { gap: 10px; }
+  .hero-content h1 {
+    font-size: clamp(2.4rem, 12vw, 3.2rem);
+    line-height: .96;
+    letter-spacing: -0.01em;
+  }
 }
 
 /* ========== REDUÃ‡ÃƒO DE MOVIMENTO (acessibilidade) ========== */
@@ -1708,5 +1765,180 @@ body.theme-aqua {
   .page-footer { transition: none !important; transform: none !important; }
 }
 
+/* ========== RESPONSIVO: COMO USAR & SUSTENTABILIDADE ========== */
+
+/* Tablet e mobile: Como usar */
+@media (max-width: 900px) {
+  .horizontal-scroll-section {
+    min-height: 100vh; /* manter 100vh como pedido */
+    height: 100vh;
+    padding: clamp(20px, 6.5vw, 32px) 0 80px; /* espaço para dots */
+    display: flex;
+    flex-direction: column;
+    position: relative;
+  }
+
+  .how-title {
+    display: block;
+    color: #fff;
+    font-weight: 800;
+    font-size: clamp(3.8rem, 14vw, 5.4rem);
+    letter-spacing: -0.02em;
+    line-height: 0.94;
+    text-align: left;
+    margin: 0 14px 12px;
+    padding: 0;
+    max-width: 10.5ch; /* força quebra em ~4 linhas */
+  }
+
+  /* hide original track on mobile; we use cu-stack slider */
+  .horizontal-track { display: none !important; }
+
+  .background-text {
+    display: none; /* esconder o texto de fundo no mobile; usamos o how-title */
+  }
+
+  /* Slider like testimonials */
+  .cu-stack{ display:block; position:relative; overflow:hidden; min-width:0; touch-action: pan-y; cursor:grab; margin: 4px 12px 0; height: 36vh; min-height: 240px }
+  .cu-stack.cu-grabbing{ cursor:grabbing }
+  .cu-card{ background: rgba(255,255,255,0.06); -webkit-backdrop-filter: blur(8px); backdrop-filter: blur(8px); border:1px solid rgba(255,255,255,0.12); border-radius:22px; padding: 14px; box-shadow: 0 12px 34px rgba(6,10,12,0.28); min-height: 160px; color:#fff }
+  .cu-stack .cu-card{ position:absolute !important; inset: 14px 20px 18px 20px !important }
+  .cu-card .panel-content{ background: transparent !important; border:0 !important; box-shadow:none !important; padding:0 !important }
+  .cu-card .panel-number{ width: 30px; height:30px; font-size:.82rem; margin-bottom: 6px; }
+  .cu-card p{ font-size: .9rem; line-height: 1.5 }
 
 
+@media (max-width: 600px) {
+  .cu-stack{ height: 34vh; min-height: 200px }
+  .cu-card{ padding: 12px; border-radius: 18px; min-height: 150px }
+  .cu-stack .cu-card{ inset: 10px 14px 14px 14px !important }
+  .cu-card p{ font-size: .88rem }
+
+  /* Larger heading on very small screens */
+  .how-title{ font-size: clamp(4.2rem, 15.5vw, 5.8rem); max-width: 10ch; }
+}
+  .panel {
+    width: 85vw;
+    min-width: 85vw;
+    height: auto;
+    padding: 0;
+    align-self: stretch !important;
+    scroll-snap-align: center;
+    flex-shrink: 0;
+  }
+
+  .panel-content {
+    max-width: 100%;
+    margin: 0 auto;
+    padding: 28px 22px 32px;
+    min-height: auto;
+    height: 100%;
+    border-radius: 20px;
+    box-shadow: 0 10px 24px rgba(0,0,0,0.25), inset 0 1px 0 rgba(255,255,255,0.04);
+  }
+
+  .panel-number { width: 36px; height: 36px; font-size: 0.9rem; margin-bottom: 14px; }
+  .panel-content p { font-size: 1rem; }
+}
+
+@media (max-width: 600px) {
+  .horizontal-scroll-section {
+    padding: 22px 0 64px;
+  }
+
+  .horizontal-track {
+    padding: 0 16px;
+    gap: 14px;
+  }
+
+  .panel {
+    width: 88vw;
+    min-width: 88vw;
+  }
+
+  .panel-content {
+    padding: 22px 18px 28px;
+    border-radius: 18px;
+  }
+
+  .background-text {
+    font-size: clamp(1.6rem, 6.5vw, 2.1rem);
+    margin-bottom: 16px;
+  }
+}
+
+/* Progress dots position for mobile within the section */
+@media (max-width: 900px) {
+  .progress-bar {
+    position: absolute;
+    bottom: 18px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+}
+
+/* Tablet e mobile: Sustentabilidade */
+@media (max-width: 900px) {
+  .sustainability-parallax .panel-content {
+    flex-direction: column !important;
+    text-align: center;
+    padding: clamp(2rem, 6vw, 3rem);
+    gap: clamp(1.5rem, 4vw, 2.5rem);
+  }
+
+  .sustainability-parallax .fullscreen-panel[data-layout="right-image"] .panel-content,
+  .sustainability-parallax .fullscreen-panel[data-layout="left-image"] .panel-content {
+    flex-direction: column !important;
+  }
+
+  .sustainability-parallax .text-column,
+  .sustainability-parallax .image-column {
+    width: 100% !important;
+    max-width: 100% !important;
+  }
+
+  .sustainability-parallax .text-column {
+    padding: 1rem 0;
+    align-items: center;
+    text-align: center;
+  }
+
+  .sustainability-parallax .image-column {
+    align-items: center !important;
+  }
+
+  .sustainability-parallax .fullscreen-panel[data-layout="right-image"] .image-column,
+  .sustainability-parallax .fullscreen-panel[data-layout="left-image"] .image-column {
+    align-items: center !important;
+  }
+}
+
+@media (max-width: 600px) {
+  .sustainability-parallax .panel-content {
+    padding: clamp(1.5rem, 5vw, 2rem);
+    gap: clamp(1rem, 3vw, 1.5rem);
+  }
+
+  .sustainability-parallax .text-column {
+    padding: 1rem 0 0.5rem; /* mais espaço no topo no mobile */
+  }
+
+  /* Padding for subtitle under SUSTENTABILIDADE */
+  #sustentabilidade .text-column p {
+    padding-left: 18px;
+    padding-right: 18px;
+    box-sizing: border-box;
+  }
+
+  /* Imagens um pouco maiores no mobile */
+  .sustainability-parallax .image-wrapper {
+    width: clamp(280px, 65vw, 360px);
+    aspect-ratio: 3 / 3.6; /* um pouco maior no mobile */
+  }
+
+  /* Diminui fonte do título SUSTENTABILIDADE no mobile */
+  #sustentabilidade h1 {
+    font-size: clamp(2rem, 8vw, 3rem) !important;
+    line-height: 1.1;
+  }
+}
